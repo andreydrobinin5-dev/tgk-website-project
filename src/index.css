@@ -177,12 +177,18 @@
   font-size: 0.75rem;
   color: hsl(var(--foreground));
   background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
 }
 
 @media (min-width: 640px) {
   .calendar-wrapper .react-calendar__tile {
     padding: 0.75rem;
     font-size: 0.875rem;
+    min-height: 70px;
   }
 }
 
@@ -207,16 +213,8 @@
   position: relative;
 }
 
-.calendar-wrapper .react-calendar__tile.available-date::after {
-  content: "";
-  position: absolute;
-  bottom: 0.25rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: hsl(var(--primary));
+.calendar-wrapper .react-calendar__tile abbr {
+  font-weight: 500;
 }
 
 .calendar-wrapper .react-calendar__tile:disabled {
@@ -225,6 +223,6 @@
   opacity: 0.3;
 }
 
-.calendar-wrapper .react-calendar__tile--active.available-date::after {
-  background: hsl(var(--primary-foreground));
+.calendar-wrapper .react-calendar__tile--active abbr {
+  font-weight: 600;
 }

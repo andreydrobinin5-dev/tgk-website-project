@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import HeroSection from '@/components/sections/HeroSection';
+import CalendarSection from '@/components/sections/CalendarSection';
 import PortfolioSection from '@/components/sections/PortfolioSection';
 import BookingModal from '@/components/sections/BookingModal';
 import GalleryModal from '@/components/sections/GalleryModal';
@@ -306,6 +307,11 @@ const Index = () => {
       <HeroSection 
         onScrollToBooking={() => setBookingModalOpen(true)}
         onScrollToPortfolio={() => scrollToSection('portfolio')}
+      />
+
+      <CalendarSection 
+        groupedSlots={groupedSlots}
+        onBookNow={() => setBookingModalOpen(true)}
       />
 
       <PortfolioSection portfolio={portfolio} />
