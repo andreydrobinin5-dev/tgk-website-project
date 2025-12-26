@@ -122,11 +122,11 @@ export default {
 				'modal-in': {
 					'0%': {
 						opacity: '0',
-						transform: 'scale(0.98) translateY(-2%)'
+						transform: 'scale(0.96)'
 					},
 					'100%': {
 						opacity: '1',
-						transform: 'scale(1) translateY(0)'
+						transform: 'scale(1)'
 					}
 				}
 			},
