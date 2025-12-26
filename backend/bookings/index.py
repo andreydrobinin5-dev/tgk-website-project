@@ -153,6 +153,17 @@ def handler(event: dict, context) -> dict:
                 'body': json.dumps(result),
                 'isBase64Encoded': False
             }
+        
+        else:
+            return {
+                'statusCode': 405,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'error': 'Method not allowed'}),
+                'isBase64Encoded': False
+            }
             
     except Exception as e:
         if conn:
