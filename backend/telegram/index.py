@@ -5,15 +5,17 @@ import requests
 
 def handler(event: dict, context) -> dict:
     """Отправка заявки мастеру в Telegram"""
+    frontend_domain = os.environ.get('FRONTEND_DOMAIN', '*')
     method = event.get('httpMethod', 'POST')
     
     if method == 'OPTIONS':
         return {
             'statusCode': 200,
             'headers': {
-                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Origin': frontend_domain,
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type'
+                'Access-Control-Allow-Headers': 'Content-Type, Cookie',
+                'Access-Control-Allow-Credentials': 'true'
             },
             'body': '',
             'isBase64Encoded': False
@@ -24,7 +26,8 @@ def handler(event: dict, context) -> dict:
             'statusCode': 405,
             'headers': {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
+                'Access-Control-Allow-Origin': frontend_domain,
+                'Access-Control-Allow-Credentials': 'true'
             },
             'body': json.dumps({'error': 'Method not allowed'}),
             'isBase64Encoded': False
@@ -52,7 +55,8 @@ def handler(event: dict, context) -> dict:
                 'statusCode': 404,
                 'headers': {
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
+                    'Access-Control-Allow-Origin': frontend_domain,
+                    'Access-Control-Allow-Credentials': 'true'
                 },
                 'body': json.dumps({'error': 'Заявка не найдена'}),
                 'isBase64Encoded': False
@@ -85,7 +89,8 @@ def handler(event: dict, context) -> dict:
                 'statusCode': 500,
                 'headers': {
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
+                    'Access-Control-Allow-Origin': frontend_domain,
+                    'Access-Control-Allow-Credentials': 'true'
                 },
                 'body': json.dumps({'error': 'Telegram не настроен'}),
                 'isBase64Encoded': False
@@ -103,7 +108,8 @@ def handler(event: dict, context) -> dict:
                 'statusCode': 500,
                 'headers': {
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
+                    'Access-Control-Allow-Origin': frontend_domain,
+                    'Access-Control-Allow-Credentials': 'true'
                 },
                 'body': json.dumps({'error': 'Ошибка отправки в Telegram'}),
                 'isBase64Encoded': False
@@ -142,7 +148,8 @@ def handler(event: dict, context) -> dict:
             'statusCode': 200,
             'headers': {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
+                'Access-Control-Allow-Origin': frontend_domain,
+                'Access-Control-Allow-Credentials': 'true'
             },
             'body': json.dumps({'message': 'Заявка отправлена мастеру'}),
             'isBase64Encoded': False
@@ -153,7 +160,8 @@ def handler(event: dict, context) -> dict:
             'statusCode': 500,
             'headers': {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
+                'Access-Control-Allow-Origin': frontend_domain,
+                'Access-Control-Allow-Credentials': 'true'
             },
             'body': json.dumps({'error': str(e)}),
             'isBase64Encoded': False

@@ -8,15 +8,17 @@ from utils import verify_admin_token
 
 def handler(event: dict, context) -> dict:
     """API для создания заявок на запись с загрузкой фото"""
+    frontend_domain = os.environ.get('FRONTEND_DOMAIN', '*')
     method = event.get('httpMethod', 'GET')
     
     if method == 'OPTIONS':
         return {
             'statusCode': 200,
             'headers': {
-                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Origin': frontend_domain,
                 'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token'
+                'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token, Cookie',
+                'Access-Control-Allow-Credentials': 'true'
             },
             'body': '',
             'isBase64Encoded': False
@@ -42,7 +44,8 @@ def handler(event: dict, context) -> dict:
                     'statusCode': 400,
                     'headers': {
                         'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
+                        'Access-Control-Allow-Origin': frontend_domain,
+                        'Access-Control-Allow-Credentials': 'true'
                     },
                     'body': json.dumps({'error': f'Максимум {MAX_PHOTOS} фото'}),
                     'isBase64Encoded': False
@@ -75,7 +78,8 @@ def handler(event: dict, context) -> dict:
                         'statusCode': 429,
                         'headers': {
                             'Content-Type': 'application/json',
-                            'Access-Control-Allow-Origin': '*'
+                            'Access-Control-Allow-Origin': frontend_domain,
+                            'Access-Control-Allow-Credentials': 'true'
                         },
                         'body': json.dumps({'error': 'Превышен лимит заявок (5 в сутки). Попробуйте завтра'}),
                         'isBase64Encoded': False
@@ -106,7 +110,8 @@ def handler(event: dict, context) -> dict:
                         'statusCode': 413,
                         'headers': {
                             'Content-Type': 'application/json',
-                            'Access-Control-Allow-Origin': '*'
+                            'Access-Control-Allow-Origin': frontend_domain,
+                            'Access-Control-Allow-Credentials': 'true'
                         },
                         'body': json.dumps({'error': f'Фото {idx + 1} слишком большое (максимум 5MB)'}),
                         'isBase64Encoded': False
@@ -123,7 +128,8 @@ def handler(event: dict, context) -> dict:
                         'statusCode': 400,
                         'headers': {
                             'Content-Type': 'application/json',
-                            'Access-Control-Allow-Origin': '*'
+                            'Access-Control-Allow-Origin': frontend_domain,
+                            'Access-Control-Allow-Credentials': 'true'
                         },
                         'body': json.dumps({'error': f'Файл {idx + 1} не является изображением'}),
                         'isBase64Encoded': False
@@ -140,7 +146,8 @@ def handler(event: dict, context) -> dict:
                     'statusCode': 409,
                     'headers': {
                         'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
+                        'Access-Control-Allow-Origin': frontend_domain,
+                        'Access-Control-Allow-Credentials': 'true'
                     },
                     'body': json.dumps({'error': 'Слот уже занят'}),
                     'isBase64Encoded': False
@@ -198,7 +205,8 @@ def handler(event: dict, context) -> dict:
                 'statusCode': 201,
                 'headers': {
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
+                    'Access-Control-Allow-Origin': frontend_domain,
+                    'Access-Control-Allow-Credentials': 'true'
                 },
                 'body': json.dumps({
                     'booking_id': booking_id,
@@ -209,13 +217,20 @@ def handler(event: dict, context) -> dict:
             }
         
         elif method == 'GET':
-            token = event.get('headers', {}).get('x-admin-token') or event.get('headers', {}).get('X-Admin-Token')
+            cookie_header = event.get('headers', {}).get('cookie', '') or event.get('headers', {}).get('Cookie', '')
+            token = None
+            if cookie_header:
+                for cookie in cookie_header.split('; '):
+                    if cookie.startswith('admin_token='):
+                        token = cookie.split('=', 1)[1]
+                        break
             if not verify_admin_token(token):
                 return {
                     'statusCode': 401,
                     'headers': {
                         'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
+                        'Access-Control-Allow-Origin': frontend_domain,
+                        'Access-Control-Allow-Credentials': 'true'
                     },
                     'body': json.dumps({'error': 'Неавторизован'}),
                     'isBase64Encoded': False
@@ -262,20 +277,28 @@ def handler(event: dict, context) -> dict:
                 'statusCode': 200,
                 'headers': {
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
+                    'Access-Control-Allow-Origin': frontend_domain,
+                    'Access-Control-Allow-Credentials': 'true'
                 },
                 'body': json.dumps(result),
                 'isBase64Encoded': False
             }
         
         elif method == 'DELETE':
-            token = event.get('headers', {}).get('x-admin-token') or event.get('headers', {}).get('X-Admin-Token')
+            cookie_header = event.get('headers', {}).get('cookie', '') or event.get('headers', {}).get('Cookie', '')
+            token = None
+            if cookie_header:
+                for cookie in cookie_header.split('; '):
+                    if cookie.startswith('admin_token='):
+                        token = cookie.split('=', 1)[1]
+                        break
             if not verify_admin_token(token):
                 return {
                     'statusCode': 401,
                     'headers': {
                         'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
+                        'Access-Control-Allow-Origin': frontend_domain,
+                        'Access-Control-Allow-Credentials': 'true'
                     },
                     'body': json.dumps({'error': 'Неавторизован'}),
                     'isBase64Encoded': False
@@ -289,7 +312,8 @@ def handler(event: dict, context) -> dict:
                     'statusCode': 400,
                     'headers': {
                         'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
+                        'Access-Control-Allow-Origin': frontend_domain,
+                        'Access-Control-Allow-Credentials': 'true'
                     },
                     'body': json.dumps({'error': 'Не указан ID заявки'}),
                     'isBase64Encoded': False
@@ -303,7 +327,8 @@ def handler(event: dict, context) -> dict:
                     'statusCode': 404,
                     'headers': {
                         'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
+                        'Access-Control-Allow-Origin': frontend_domain,
+                        'Access-Control-Allow-Credentials': 'true'
                     },
                     'body': json.dumps({'error': 'Заявка не найдена'}),
                     'isBase64Encoded': False
@@ -321,7 +346,8 @@ def handler(event: dict, context) -> dict:
                 'statusCode': 200,
                 'headers': {
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
+                    'Access-Control-Allow-Origin': frontend_domain,
+                    'Access-Control-Allow-Credentials': 'true'
                 },
                 'body': json.dumps({'message': 'Заявка удалена, слот освобожден'}),
                 'isBase64Encoded': False
@@ -332,7 +358,8 @@ def handler(event: dict, context) -> dict:
                 'statusCode': 405,
                 'headers': {
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
+                    'Access-Control-Allow-Origin': frontend_domain,
+                    'Access-Control-Allow-Credentials': 'true'
                 },
                 'body': json.dumps({'error': 'Method not allowed'}),
                 'isBase64Encoded': False
@@ -345,7 +372,8 @@ def handler(event: dict, context) -> dict:
             'statusCode': 500,
             'headers': {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
+                'Access-Control-Allow-Origin': frontend_domain,
+                'Access-Control-Allow-Credentials': 'true'
             },
             'body': json.dumps({'error': str(e)}),
             'isBase64Encoded': False

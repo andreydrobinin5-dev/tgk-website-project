@@ -13,13 +13,24 @@ const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [tokenExpiry, setTokenExpiry] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    const token = localStorage.getItem('admin_token');
-    if (token) {
-      setIsAuthenticated(true);
-    }
+    const checkAuth = async () => {
+      const expiry = localStorage.getItem('admin_token_expiry');
+      if (expiry) {
+        const expiryDate = new Date(expiry);
+        if (expiryDate > new Date()) {
+          setTokenExpiry(expiry);
+          setIsAuthenticated(true);
+        } else {
+          localStorage.removeItem('admin_token_expiry');
+          setIsAuthenticated(false);
+        }
+      }
+    };
+    checkAuth();
   }, []);
 
   const handleLogin = async () => {
@@ -38,13 +49,15 @@ const Admin = () => {
       const response = await fetch('https://functions.poehali.dev/a6d698fe-c92a-4d08-b994-4fc13e0a8679', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ password })
       });
 
       const data = await response.json();
 
       if (response.ok && data.success) {
-        localStorage.setItem('admin_token', data.token);
+        localStorage.setItem('admin_token_expiry', data.expires_at);
+        setTokenExpiry(data.expires_at);
         setIsAuthenticated(true);
         toast({
           title: 'Успешно',
@@ -69,8 +82,10 @@ const Admin = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_token_expiry');
+    document.cookie = 'admin_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     setIsAuthenticated(false);
+    setTokenExpiry(null);
     toast({
       title: 'Выход выполнен',
       description: 'Вы вышли из админ-панели'

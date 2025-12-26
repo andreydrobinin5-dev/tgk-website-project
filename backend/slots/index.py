@@ -6,15 +6,17 @@ from utils import verify_admin_token
 
 def handler(event: dict, context) -> dict:
     """API для управления слотами времени записи"""
+    frontend_domain = os.environ.get('FRONTEND_DOMAIN', '*')
     method = event.get('httpMethod', 'GET')
     
     if method == 'OPTIONS':
         return {
             'statusCode': 200,
             'headers': {
-                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Origin': frontend_domain,
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token'
+                'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token, Cookie',
+                'Access-Control-Allow-Credentials': 'true'
             },
             'body': '',
             'isBase64Encoded': False
@@ -44,20 +46,28 @@ def handler(event: dict, context) -> dict:
                 'statusCode': 200,
                 'headers': {
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
+                    'Access-Control-Allow-Origin': frontend_domain,
+                    'Access-Control-Allow-Credentials': 'true'
                 },
                 'body': json.dumps(result),
                 'isBase64Encoded': False
             }
         
         elif method == 'POST':
-            token = event.get('headers', {}).get('x-admin-token') or event.get('headers', {}).get('X-Admin-Token')
+            cookie_header = event.get('headers', {}).get('cookie', '') or event.get('headers', {}).get('Cookie', '')
+            token = None
+            if cookie_header:
+                for cookie in cookie_header.split('; '):
+                    if cookie.startswith('admin_token='):
+                        token = cookie.split('=', 1)[1]
+                        break
             if not verify_admin_token(token):
                 return {
                     'statusCode': 401,
                     'headers': {
                         'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
+                        'Access-Control-Allow-Origin': frontend_domain,
+                        'Access-Control-Allow-Credentials': 'true'
                     },
                     'body': json.dumps({'error': 'Неавторизован'}),
                     'isBase64Encoded': False
@@ -82,7 +92,8 @@ def handler(event: dict, context) -> dict:
                     'statusCode': 201,
                     'headers': {
                         'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
+                        'Access-Control-Allow-Origin': frontend_domain,
+                        'Access-Control-Allow-Credentials': 'true'
                     },
                     'body': json.dumps({'id': result[0], 'message': 'Слот создан'}),
                     'isBase64Encoded': False
@@ -92,20 +103,28 @@ def handler(event: dict, context) -> dict:
                     'statusCode': 409,
                     'headers': {
                         'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
+                        'Access-Control-Allow-Origin': frontend_domain,
+                        'Access-Control-Allow-Credentials': 'true'
                     },
                     'body': json.dumps({'error': 'Слот уже существует'}),
                     'isBase64Encoded': False
                 }
         
         elif method == 'PUT':
-            token = event.get('headers', {}).get('x-admin-token') or event.get('headers', {}).get('X-Admin-Token')
+            cookie_header = event.get('headers', {}).get('cookie', '') or event.get('headers', {}).get('Cookie', '')
+            token = None
+            if cookie_header:
+                for cookie in cookie_header.split('; '):
+                    if cookie.startswith('admin_token='):
+                        token = cookie.split('=', 1)[1]
+                        break
             if not verify_admin_token(token):
                 return {
                     'statusCode': 401,
                     'headers': {
                         'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
+                        'Access-Control-Allow-Origin': frontend_domain,
+                        'Access-Control-Allow-Credentials': 'true'
                     },
                     'body': json.dumps({'error': 'Неавторизован'}),
                     'isBase64Encoded': False
@@ -127,20 +146,28 @@ def handler(event: dict, context) -> dict:
                 'statusCode': 200,
                 'headers': {
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
+                    'Access-Control-Allow-Origin': frontend_domain,
+                    'Access-Control-Allow-Credentials': 'true'
                 },
                 'body': json.dumps({'message': 'Слот обновлен'}),
                 'isBase64Encoded': False
             }
         
         elif method == 'DELETE':
-            token = event.get('headers', {}).get('x-admin-token') or event.get('headers', {}).get('X-Admin-Token')
+            cookie_header = event.get('headers', {}).get('cookie', '') or event.get('headers', {}).get('Cookie', '')
+            token = None
+            if cookie_header:
+                for cookie in cookie_header.split('; '):
+                    if cookie.startswith('admin_token='):
+                        token = cookie.split('=', 1)[1]
+                        break
             if not verify_admin_token(token):
                 return {
                     'statusCode': 401,
                     'headers': {
                         'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
+                        'Access-Control-Allow-Origin': frontend_domain,
+                        'Access-Control-Allow-Credentials': 'true'
                     },
                     'body': json.dumps({'error': 'Неавторизован'}),
                     'isBase64Encoded': False
@@ -160,7 +187,8 @@ def handler(event: dict, context) -> dict:
                 'statusCode': 200,
                 'headers': {
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
+                    'Access-Control-Allow-Origin': frontend_domain,
+                    'Access-Control-Allow-Credentials': 'true'
                 },
                 'body': json.dumps({'message': 'Слот удален'}),
                 'isBase64Encoded': False
@@ -171,7 +199,8 @@ def handler(event: dict, context) -> dict:
             'statusCode': 500,
             'headers': {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
+                'Access-Control-Allow-Origin': frontend_domain,
+                'Access-Control-Allow-Credentials': 'true'
             },
             'body': json.dumps({'error': str(e)}),
             'isBase64Encoded': False

@@ -8,14 +8,16 @@ from datetime import datetime, timedelta
 def handler(event: dict, context) -> dict:
     """API для авторизации администратора с хешированием паролей"""
     method = event.get('httpMethod', 'GET')
+    frontend_domain = os.environ.get('FRONTEND_DOMAIN', '*')
     
     if method == 'OPTIONS':
         return {
             'statusCode': 200,
             'headers': {
-                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Origin': frontend_domain,
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type'
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Credentials': 'true'
             },
             'body': '',
             'isBase64Encoded': False
@@ -110,15 +112,19 @@ def handler(event: dict, context) -> dict:
                 
                 conn.commit()
                 
+                cookie_header = f'admin_token={token}; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=604800'
+                
                 return {
                     'statusCode': 200,
                     'headers': {
                         'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
+                        'Access-Control-Allow-Origin': frontend_domain,
+                        'Access-Control-Allow-Credentials': 'true',
+                        'Set-Cookie': cookie_header
                     },
                     'body': json.dumps({
                         'success': True,
-                        'token': token
+                        'expires_at': expires_at.isoformat()
                     }),
                     'isBase64Encoded': False
                 }
@@ -137,7 +143,8 @@ def handler(event: dict, context) -> dict:
                     'statusCode': 401,
                     'headers': {
                         'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
+                        'Access-Control-Allow-Origin': frontend_domain,
+                        'Access-Control-Allow-Credentials': 'true'
                     },
                     'body': json.dumps({
                         'success': False,
@@ -151,7 +158,8 @@ def handler(event: dict, context) -> dict:
                 'statusCode': 500,
                 'headers': {
                     'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
+                    'Access-Control-Allow-Origin': frontend_domain,
+                    'Access-Control-Allow-Credentials': 'true'
                 },
                 'body': json.dumps({'error': str(e)}),
                 'isBase64Encoded': False
@@ -164,7 +172,8 @@ def handler(event: dict, context) -> dict:
         'statusCode': 405,
         'headers': {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Origin': frontend_domain,
+            'Access-Control-Allow-Credentials': 'true'
         },
         'body': json.dumps({'error': 'Method not allowed'}),
         'isBase64Encoded': False
