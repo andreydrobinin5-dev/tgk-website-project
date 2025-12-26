@@ -373,14 +373,18 @@ const Index = () => {
                 Открыть в 2ГИС
               </a>
             </div>
-            <div className="rounded-xl overflow-hidden border border-border h-[200px]">
-              <iframe 
-                src="https://widgets.2gis.com/widget?type=firmsonmap&options=%7B%22pos%22%3A%7B%22lat%22%3A56.480667%2C%22lon%22%3A84.97393%2C%22zoom%22%3A16%7D%2C%22opt%22%3A%7B%22city%22%3A%22tomsk%22%7D%2C%22org%22%3A%22422848120236160%22%7D" 
-                width="100%" 
-                height="100%" 
-                style={{ border: 'none' }}
+            <a 
+              href="https://2gis.ru/tomsk/geo/422848120236160?m=84.97393%2C56.480667%2F14.76" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="rounded-xl overflow-hidden border border-border h-[200px] block hover:opacity-90 transition-opacity"
+            >
+              <img 
+                src="https://cdn.poehali.dev/files/image.png" 
+                alt="Карта расположения студии" 
+                className="w-full h-full object-cover"
               />
-            </div>
+            </a>
           </div>
           <div className="text-center pt-6 border-t border-border">
             <p className="text-muted-foreground text-sm">© 2024 YOLO NAIILS. Все права защищены.</p>
