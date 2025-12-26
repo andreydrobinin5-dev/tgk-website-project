@@ -1,0 +1,32 @@
+{
+  "tests": [
+    {
+      "name": "Login with correct password",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "password": "yolo2024"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "token": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Login with wrong password",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "password": "wrongpassword"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "success": false,
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

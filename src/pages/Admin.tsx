@@ -12,34 +12,64 @@ import AdminBookings from '@/components/admin/AdminBookings';
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    const auth = localStorage.getItem('admin_auth');
-    if (auth === 'true') {
+    const token = localStorage.getItem('admin_token');
+    if (token) {
       setIsAuthenticated(true);
     }
   }, []);
 
-  const handleLogin = () => {
-    if (password === 'yolo2024') {
-      localStorage.setItem('admin_auth', 'true');
-      setIsAuthenticated(true);
-      toast({
-        title: 'Успешно',
-        description: 'Добро пожаловать в админ-панель'
-      });
-    } else {
+  const handleLogin = async () => {
+    if (!password) {
       toast({
         title: 'Ошибка',
-        description: 'Неверный пароль',
+        description: 'Введите пароль',
         variant: 'destructive'
       });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/a6d698fe-c92a-4d08-b994-4fc13e0a8679', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        localStorage.setItem('admin_token', data.token);
+        setIsAuthenticated(true);
+        toast({
+          title: 'Успешно',
+          description: 'Добро пожаловать в админ-панель'
+        });
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Неверный пароль',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Проблема с подключением',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('admin_auth');
+    localStorage.removeItem('admin_token');
     setIsAuthenticated(false);
     toast({
       title: 'Выход выполнен',
@@ -67,8 +97,8 @@ const Admin = () => {
                 className="mt-2"
               />
             </div>
-            <Button onClick={handleLogin} className="w-full">
-              Войти
+            <Button onClick={handleLogin} className="w-full" disabled={isLoading}>
+              {isLoading ? 'Вход...' : 'Войти'}
             </Button>
           </CardContent>
         </Card>
