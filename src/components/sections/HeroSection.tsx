@@ -43,7 +43,7 @@ const HeroSection = ({ onScrollToBooking, onScrollToPortfolio }: HeroSectionProp
           <span className="animate-pulse">|</span>
         </h2>
         <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-2xl mx-auto animate-fade-in font-light">
-          Создаём уникальные дизайны и обеспечиваем идеальный уход
+          Создаю уникальные дизайны с заботой о ваших ногтях
         </p>
         <div className="flex gap-4 justify-center animate-slide-up">
           <Button 

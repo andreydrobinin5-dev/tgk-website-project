@@ -18,7 +18,7 @@ const GalleryModal = ({ open, onOpenChange, portfolio }: GalleryModalProps) => {
       <DialogContent className="max-w-5xl max-h-[90vh] p-0 gap-0 bg-white/98 backdrop-blur-3xl border-gray-200 shadow-2xl">
         <DialogHeader className="px-8 pt-8 pb-4">
           <DialogTitle className="text-3xl font-semibold tracking-tight">
-            Галерея работ
+            Мои работы
           </DialogTitle>
         </DialogHeader>
 
