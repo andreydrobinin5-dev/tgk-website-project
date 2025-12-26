@@ -55,7 +55,7 @@ const BookingModal = ({
 }: BookingModalProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] p-0 gap-0 bg-white/98 backdrop-blur-3xl border-gray-200 shadow-2xl animate-modal-in">
+      <DialogContent className="max-w-3xl max-h-[90vh] p-0 gap-0 bg-white/98 backdrop-blur-3xl border-gray-200 shadow-2xl">
         <DialogHeader className="px-8 pt-8 pb-4">
           <DialogTitle className="text-3xl font-semibold tracking-tight">
             {!showPayment ? 'Запись на маникюр' : 'Подтверждение оплаты'}
