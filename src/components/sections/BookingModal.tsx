@@ -160,12 +160,12 @@ const BookingModal = ({
                     </div>
 
                     <div>
-                      <Label htmlFor="contact" className="text-base">Телефон или Telegram</Label>
+                      <Label htmlFor="contact" className="text-base">Telegram</Label>
                       <Input
                         id="contact"
                         value={formData.contact}
                         onChange={(e) => onFormChange({ ...formData, contact: e.target.value })}
-                        placeholder="+7 (999) 999-99-99"
+                        placeholder="@username"
                         className="mt-2 h-12 bg-background border-border"
                       />
                     </div>
@@ -236,8 +236,7 @@ const BookingModal = ({
 
                 <div className="bg-muted p-6 rounded-2xl space-y-2">
                   <p className="font-medium mb-3">Реквизиты для перевода</p>
-                  <p className="text-sm">Карта Сбербанк: <span className="font-mono">2202 2000 0000 0000</span></p>
-                  <p className="text-sm">СБП: <span className="font-mono">+7 (999) 999-99-99</span></p>
+                  <p className="text-sm">Ozon Банк: <span className="font-mono">2204 3204 3449 4284</span></p>
                   <p className="text-xs text-muted-foreground mt-3">Получатель: Иванова Анна Сергеевна</p>
                 </div>
 
@@ -262,7 +261,7 @@ const BookingModal = ({
                   className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground text-base"
                   disabled={!receiptImage}
                 >
-                  Отправить заявку
+                  Записаться
                 </Button>
               </div>
             )}

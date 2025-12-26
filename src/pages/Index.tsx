@@ -74,6 +74,26 @@ const Index = () => {
     {
       image: 'https://cdn.poehali.dev/files/photo_2025-12-27_00-41-48.jpg',
       title: 'Мраморная классика'
+    },
+    {
+      image: 'https://cdn.poehali.dev/files/photo_2025-12-27_00-41-49.jpg',
+      title: 'Винный металлик'
+    },
+    {
+      image: 'https://cdn.poehali.dev/files/photo_2025-12-27_00-41-51.jpg',
+      title: 'Жемчужный шик'
+    },
+    {
+      image: 'https://cdn.poehali.dev/files/photo_2025-12-27_00-41-52.jpg',
+      title: 'Пудровый минимализм'
+    },
+    {
+      image: 'https://cdn.poehali.dev/files/photo_2025-12-27_00-41-53 (2).jpg',
+      title: 'Веточки сакуры'
+    },
+    {
+      image: 'https://cdn.poehali.dev/files/photo_2025-12-27_00-41-53.jpg',
+      title: 'Розовое облако'
     }
   ];
 
