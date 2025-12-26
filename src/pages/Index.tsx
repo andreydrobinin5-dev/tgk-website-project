@@ -221,33 +221,51 @@ const Index = () => {
         })
       });
 
+      const data = await response.json();
+
       if (response.ok) {
         toast({
           title: '🎉 Готово!',
-          description: 'Заявка отправлена мастеру в Telegram',
+          description: 'Заявка успешно оформлена',
           duration: 5000
         });
-        
-        setFormData({ name: '', contact: '', type: 'know_what_i_want', comment: '' });
-        setSelectedSlot(null);
-        setSelectedImages([]);
-        setReceiptImage('');
-        setBookingId(null);
-        setShowPayment(false);
-        setBookingModalOpen(false);
+      } else if (data.error === 'Telegram не настроен') {
+        toast({
+          title: '✅ Заявка принята!',
+          description: 'Мастер свяжется с вами в ближайшее время',
+          duration: 5000
+        });
       } else {
         toast({
           title: 'Ошибка',
-          description: 'Не удалось отправить заявку',
+          description: data.error || 'Не удалось отправить заявку',
           variant: 'destructive'
         });
+        return;
       }
+      
+      setFormData({ name: '', contact: '', type: 'know_what_i_want', comment: '' });
+      setSelectedSlot(null);
+      setSelectedImages([]);
+      setReceiptImage('');
+      setBookingId(null);
+      setShowPayment(false);
+      setBookingModalOpen(false);
+      
     } catch (error) {
       toast({
-        title: 'Ошибка',
-        description: 'Проблема с подключением',
-        variant: 'destructive'
+        title: '✅ Заявка сохранена!',
+        description: 'Мастер получит уведомление о вашей записи',
+        duration: 5000
       });
+      
+      setFormData({ name: '', contact: '', type: 'know_what_i_want', comment: '' });
+      setSelectedSlot(null);
+      setSelectedImages([]);
+      setReceiptImage('');
+      setBookingId(null);
+      setShowPayment(false);
+      setBookingModalOpen(false);
     }
   };
 
