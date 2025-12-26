@@ -241,8 +241,8 @@ const Index = () => {
   const groupedSlots = groupSlotsByDate(slots);
 
   return (
-    <div className="min-h-screen bg-white">
-      <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-xl z-50 border-b border-gray-100">
+    <div className="min-h-screen bg-background">
+      <nav className="fixed top-0 w-full bg-background/80 backdrop-blur-xl z-50 border-b border-border">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-semibold tracking-tight">
@@ -252,7 +252,7 @@ const Index = () => {
               <Button 
                 onClick={() => setGalleryModalOpen(true)}
                 variant="ghost"
-                className="text-gray-700 hover:bg-gray-100 rounded-full px-4"
+                className="text-foreground/70 hover:bg-muted rounded-full px-4"
               >
                 <Icon name="Image" size={18} className="mr-2" />
                 Работы
@@ -260,14 +260,14 @@ const Index = () => {
               <Button 
                 onClick={() => setCalendarModalOpen(true)}
                 variant="ghost"
-                className="text-gray-700 hover:bg-gray-100 rounded-full px-4"
+                className="text-foreground/70 hover:bg-muted rounded-full px-4"
               >
                 <Icon name="Calendar" size={18} className="mr-2" />
                 Календарь
               </Button>
               <Button 
                 onClick={() => setBookingModalOpen(true)}
-                className="bg-black hover:bg-gray-800 text-white rounded-full px-6"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-6"
               >
                 Записаться
               </Button>
@@ -312,9 +312,9 @@ const Index = () => {
         onSubmitPayment={handleSubmitPayment}
       />
 
-      <footer className="py-12 px-6 bg-gray-50 border-t border-gray-100">
+      <footer className="py-12 px-6 bg-muted border-t border-border">
         <div className="container mx-auto max-w-6xl text-center">
-          <p className="text-gray-500 text-sm">© 2024 YOLO NAIILS. Все права защищены.</p>
+          <p className="text-muted-foreground text-sm">© 2024 YOLO NAIILS. Все права защищены.</p>
         </div>
       </footer>
     </div>

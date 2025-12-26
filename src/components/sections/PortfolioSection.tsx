@@ -20,7 +20,7 @@ const PortfolioSection = ({ portfolio }: PortfolioSectionProps) => {
           {portfolio.map((item, idx) => (
             <Card 
               key={idx} 
-              className="overflow-hidden group cursor-pointer bg-white border-gray-100 hover:shadow-xl transition-all duration-500 animate-scale-in"
+              className="overflow-hidden group cursor-pointer bg-card border-border hover:shadow-xl transition-all duration-500 animate-scale-in"
               style={{ animationDelay: `${idx * 0.1}s` }}
             >
               <div className="aspect-square overflow-hidden">
@@ -31,7 +31,7 @@ const PortfolioSection = ({ portfolio }: PortfolioSectionProps) => {
                 />
               </div>
               <CardContent className="p-6">
-                <h3 className="font-medium text-center text-gray-700">{item.title}</h3>
+                <h3 className="font-medium text-center text-muted-foreground">{item.title}</h3>
               </CardContent>
             </Card>
           ))}

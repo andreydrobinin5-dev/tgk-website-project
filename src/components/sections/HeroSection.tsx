@@ -42,14 +42,14 @@ const HeroSection = ({ onScrollToBooking, onScrollToPortfolio }: HeroSectionProp
           ))}
           <span className="animate-pulse">|</span>
         </h2>
-        <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-2xl mx-auto animate-fade-in font-light">
+        <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto animate-fade-in font-light">
           Создаю уникальные дизайны с заботой о ваших ногтях
         </p>
         <div className="flex gap-4 justify-center animate-slide-up">
           <Button 
             size="lg" 
             onClick={onScrollToBooking}
-            className="bg-black hover:bg-gray-800 text-white text-base px-8 h-12 rounded-full"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground text-base px-8 h-12 rounded-full"
           >
             Записаться онлайн
           </Button>
@@ -57,7 +57,7 @@ const HeroSection = ({ onScrollToBooking, onScrollToPortfolio }: HeroSectionProp
             size="lg" 
             variant="outline" 
             onClick={handleScrollToPortfolio}
-            className="text-base px-8 h-12 rounded-full border-gray-300 hover:bg-gray-50"
+            className="text-base px-8 h-12 rounded-full border-border hover:bg-muted"
           >
             Смотреть работы
           </Button>
