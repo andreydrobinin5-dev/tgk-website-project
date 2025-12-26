@@ -9,7 +9,7 @@ interface HeroSectionProps {
 
 const HeroSection = ({ onScrollToBooking, onScrollToPortfolio }: HeroSectionProps) => {
   const [displayedText, setDisplayedText] = useState('');
-  const fullText = 'Ваши ногти —\nнаше искусство';
+  const fullText = 'Искусство в каждой\nдетали';
   
   useEffect(() => {
     let currentIndex = 0;
@@ -25,12 +25,14 @@ const HeroSection = ({ onScrollToBooking, onScrollToPortfolio }: HeroSectionProp
     return () => clearInterval(typingInterval);
   }, []);
 
+  const handleScrollToPortfolio = () => {
+    const element = document.getElementById('portfolio');
+    element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
     <section id="home" className="pt-32 pb-24 px-6">
       <div className="container mx-auto max-w-5xl text-center">
-        <Badge variant="secondary" className="mb-8 bg-gray-100 text-gray-700 border-0 text-sm">
-          💅 Профессиональный маникюр
-        </Badge>
         <h2 className="text-6xl md:text-8xl font-medium leading-[1.1] mb-6 tracking-tight min-h-[200px] md:min-h-[300px]" style={{ fontFamily: "'Playfair Display', serif" }}>
           {displayedText.split('\n').map((line, idx) => (
             <span key={idx}>
@@ -54,7 +56,7 @@ const HeroSection = ({ onScrollToBooking, onScrollToPortfolio }: HeroSectionProp
           <Button 
             size="lg" 
             variant="outline" 
-            onClick={onScrollToPortfolio}
+            onClick={handleScrollToPortfolio}
             className="text-base px-8 h-12 rounded-full border-gray-300 hover:bg-gray-50"
           >
             Смотреть работы

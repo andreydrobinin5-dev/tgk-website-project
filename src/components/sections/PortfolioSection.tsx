@@ -11,7 +11,7 @@ interface PortfolioSectionProps {
 
 const PortfolioSection = ({ portfolio }: PortfolioSectionProps) => {
   return (
-    <section id="portfolio" className="py-24 px-6">
+    <section id="portfolio" className="py-24 px-6 scroll-mt-20">
       <div className="container mx-auto max-w-6xl">
         <h2 className="text-5xl md:text-6xl font-semibold text-center mb-16 tracking-tight">
           Галерея работ
