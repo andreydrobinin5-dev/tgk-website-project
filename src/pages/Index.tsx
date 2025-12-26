@@ -267,31 +267,34 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <nav className="fixed top-0 w-full bg-background/80 backdrop-blur-xl z-50 border-b border-border">
-        <div className="container mx-auto px-6 py-4">
+        <div className="container mx-auto px-4 md:px-6 py-3 md:py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-semibold tracking-tight">
+            <h1 className="text-xl md:text-2xl font-semibold tracking-tight">
               YOLO NAIILS
             </h1>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
               <Button 
                 onClick={() => setGalleryModalOpen(true)}
                 variant="ghost"
-                className="text-foreground/70 hover:bg-muted rounded-full px-4"
+                size="sm"
+                className="text-foreground/70 hover:bg-muted rounded-full px-2 md:px-4"
               >
-                <Icon name="Image" size={18} className="mr-2" />
-                Работы
+                <Icon name="Image" size={18} className="md:mr-2" />
+                <span className="hidden md:inline">Работы</span>
               </Button>
               <Button 
                 onClick={() => setCalendarModalOpen(true)}
                 variant="ghost"
-                className="text-foreground/70 hover:bg-muted rounded-full px-4"
+                size="sm"
+                className="text-foreground/70 hover:bg-muted rounded-full px-2 md:px-4"
               >
-                <Icon name="Calendar" size={18} className="mr-2" />
-                Календарь
+                <Icon name="Calendar" size={18} className="md:mr-2" />
+                <span className="hidden md:inline">Календарь</span>
               </Button>
               <Button 
                 onClick={() => setBookingModalOpen(true)}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-6"
+                size="sm"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-3 md:px-6 text-sm"
               >
                 Записаться
               </Button>

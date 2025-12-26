@@ -28,9 +28,9 @@ const HeroSection = ({ onScrollToBooking, onScrollToPortfolio }: HeroSectionProp
 
 
   return (
-    <section id="home" className="pt-32 pb-24 px-6">
+    <section id="home" className="pt-24 md:pt-32 pb-16 md:pb-24 px-4 md:px-6">
       <div className="container mx-auto max-w-5xl text-center">
-        <h2 className="text-6xl md:text-8xl font-medium leading-[1.1] mb-6 tracking-tight min-h-[200px] md:min-h-[300px]" style={{ fontFamily: "'Playfair Display', serif" }}>
+        <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-medium leading-[1.1] mb-4 md:mb-6 tracking-tight min-h-[140px] sm:min-h-[180px] md:min-h-[200px] lg:min-h-[300px]" style={{ fontFamily: "'Playfair Display', serif" }}>
           {displayedText.split('\n').map((line, idx) => (
             <span key={idx}>
               {line}
@@ -39,14 +39,14 @@ const HeroSection = ({ onScrollToBooking, onScrollToPortfolio }: HeroSectionProp
           ))}
           <span className="animate-pulse">|</span>
         </h2>
-        <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto animate-fade-in font-light">
+        <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-8 md:mb-12 max-w-2xl mx-auto animate-fade-in font-light px-4">
           Создаю уникальные дизайны с заботой о ваших ногтях
         </p>
-        <div className="flex gap-4 justify-center animate-slide-up">
+        <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center animate-slide-up px-4">
           <Button 
             size="lg" 
             onClick={onScrollToBooking}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground text-base px-8 h-12 rounded-full"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm md:text-base px-6 md:px-8 h-11 md:h-12 rounded-full w-full sm:w-auto"
           >
             Записаться онлайн
           </Button>
@@ -54,7 +54,7 @@ const HeroSection = ({ onScrollToBooking, onScrollToPortfolio }: HeroSectionProp
             size="lg" 
             variant="outline" 
             onClick={onScrollToPortfolio}
-            className="text-base px-8 h-12 rounded-full border-border hover:bg-muted"
+            className="text-sm md:text-base px-6 md:px-8 h-11 md:h-12 rounded-full border-border hover:bg-muted w-full sm:w-auto"
           >
             Смотреть работы
           </Button>

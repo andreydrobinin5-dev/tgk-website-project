@@ -82,15 +82,15 @@ const BookingModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 gap-0 bg-card backdrop-blur-3xl border-border shadow-2xl overflow-hidden">
-        <DialogHeader className="px-8 pt-8 pb-4 flex-shrink-0">
-          <DialogTitle className="text-3xl font-semibold tracking-tight">
+      <DialogContent className="max-w-4xl max-h-[95vh] sm:max-h-[90vh] p-0 gap-0 bg-card backdrop-blur-3xl border-border shadow-2xl overflow-hidden">
+        <DialogHeader className="px-4 sm:px-6 md:px-8 pt-4 sm:pt-6 md:pt-8 pb-3 md:pb-4 flex-shrink-0">
+          <DialogTitle className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight">
             {!showPayment ? 'Запись на маникюр' : 'Подтверждение оплаты'}
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="h-full max-h-[calc(90vh-120px)]">
-          <div className="px-8 pb-8">
+        <ScrollArea className="h-full max-h-[calc(95vh-100px)] sm:max-h-[calc(90vh-120px)]">
+          <div className="px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 md:pb-8">
             {!showPayment ? (
               <div className="space-y-8">
                 <div>
@@ -100,7 +100,7 @@ const BookingModal = ({
                       <p className="text-muted-foreground">Свободных окошек пока нет</p>
                     </div>
                   ) : (
-                    <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
                       <div className="calendar-wrapper">
                         <Calendar
                           onChange={handleDateChange as any}
@@ -115,17 +115,17 @@ const BookingModal = ({
                       <div>
                         {selectedDate && timeSlotsForSelectedDate.length > 0 ? (
                           <div className="space-y-3">
-                            <p className="text-sm font-medium text-muted-foreground mb-3">
+                            <p className="text-sm font-medium text-muted-foreground">
                               Доступное время
                             </p>
-                            <div className="grid grid-cols-3 gap-2">
+                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                               {timeSlotsForSelectedDate.map((slot) => (
                                 <Button
                                   key={slot.id}
                                   variant={selectedSlot?.id === slot.id ? 'default' : 'outline'}
                                   disabled={!slot.available}
                                   onClick={() => onSelectSlot(slot)}
-                                  className={`h-11 ${selectedSlot?.id === slot.id ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : 'hover:bg-muted'}`}
+                                  className={`h-10 text-sm ${selectedSlot?.id === slot.id ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : 'hover:bg-muted'}`}
                                 >
                                   {slot.time.slice(0, 5)}
                                 </Button>
@@ -133,11 +133,11 @@ const BookingModal = ({
                             </div>
                           </div>
                         ) : selectedDate ? (
-                          <div className="flex items-center justify-center h-full text-muted-foreground">
+                          <div className="flex items-center justify-center py-8 text-center text-sm text-muted-foreground px-4">
                             Нет доступных окошек на эту дату
                           </div>
                         ) : (
-                          <div className="flex items-center justify-center h-full text-muted-foreground">
+                          <div className="flex items-center justify-center py-8 text-center text-sm text-muted-foreground px-4">
                             Выберите дату в календаре
                           </div>
                         )}
