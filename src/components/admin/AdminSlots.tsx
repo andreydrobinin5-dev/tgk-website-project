@@ -57,7 +57,10 @@ const AdminSlots = () => {
       return;
     }
 
-    const dateStr = selectedDate.toISOString().split('T')[0];
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const day = String(selectedDate.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
 
     try {
       const response = await fetch('https://functions.poehali.dev/9689b825-c9ac-49db-b85b-f1310460470d', {
@@ -129,7 +132,10 @@ const AdminSlots = () => {
   const groupedSlots = groupSlotsByDate(slots);
 
   const tileClassName = ({ date }: { date: Date }) => {
-    const dateStr = date.toISOString().split('T')[0];
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
     if (groupedSlots[dateStr]) {
       return 'available-date';
     }
@@ -148,7 +154,10 @@ const AdminSlots = () => {
       return;
     }
 
-    const dateStr = selectedDate.toISOString().split('T')[0];
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const day = String(selectedDate.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
 
     try {
       const response = await fetch('https://functions.poehali.dev/9689b825-c9ac-49db-b85b-f1310460470d', {
@@ -178,7 +187,12 @@ const AdminSlots = () => {
     }
   };
 
-  const selectedDateStr = selectedDate?.toISOString().split('T')[0];
+  const selectedDateStr = selectedDate ? (() => {
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const day = String(selectedDate.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  })() : undefined;
   const slotsForSelectedDate = selectedDateStr ? groupedSlots[selectedDateStr] || [] : [];
 
   return (
@@ -263,7 +277,7 @@ const AdminSlots = () => {
               {selectedDate ? (
                 <div className="space-y-3">
                   <h3 className="text-sm font-medium">
-                    Слоты на {selectedDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}
+                    Слоты на {selectedDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
                   </h3>
                   {slotsForSelectedDate.length > 0 ? (
                     <div className="space-y-2">
