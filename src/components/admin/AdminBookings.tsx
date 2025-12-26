@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -62,6 +63,41 @@ const AdminBookings = () => {
     setIsDetailOpen(true);
   };
 
+  const handleDelete = async (bookingId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!confirm('Вы уверены, что хотите удалить эту заявку?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://functions.poehali.dev/406a4a18-71da-46ec-a8a4-efc9c7c87810?id=${bookingId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Успешно',
+          description: 'Заявка удалена, слот освобожден'
+        });
+        fetchBookings();
+      } else {
+        const data = await response.json();
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось удалить заявку',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Проблема с подключением',
+        variant: 'destructive'
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -92,14 +128,24 @@ const AdminBookings = () => {
                         <p className="text-sm text-muted-foreground">{booking.contact}</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-medium">
-                        {new Date(booking.date).toLocaleDateString('ru-RU', {
-                          day: 'numeric',
-                          month: 'short'
-                        })}
-                      </p>
-                      <p className="text-sm text-muted-foreground">{booking.time.slice(0, 5)}</p>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <p className="font-medium">
+                          {new Date(booking.date).toLocaleDateString('ru-RU', {
+                            day: 'numeric',
+                            month: 'short'
+                          })}
+                        </p>
+                        <p className="text-sm text-muted-foreground">{booking.time.slice(0, 5)}</p>
+                      </div>
+                      <Button
+                        onClick={(e) => handleDelete(booking.id, e)}
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <Icon name="Trash2" size={18} />
+                      </Button>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">

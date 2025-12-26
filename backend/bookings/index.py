@@ -14,7 +14,7 @@ def handler(event: dict, context) -> dict:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type'
             },
             'body': '',
@@ -151,6 +151,53 @@ def handler(event: dict, context) -> dict:
                     'Access-Control-Allow-Origin': '*'
                 },
                 'body': json.dumps(result),
+                'isBase64Encoded': False
+            }
+        
+        elif method == 'DELETE':
+            params = event.get('queryStringParameters', {})
+            booking_id = params.get('id')
+            
+            if not booking_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': json.dumps({'error': 'Не указан ID заявки'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute("SELECT slot_id FROM bookings WHERE id = %s", (booking_id,))
+            result = cur.fetchone()
+            
+            if not result:
+                return {
+                    'statusCode': 404,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': json.dumps({'error': 'Заявка не найдена'}),
+                    'isBase64Encoded': False
+                }
+            
+            slot_id = result[0]
+            
+            cur.execute("DELETE FROM booking_photos WHERE booking_id = %s", (booking_id,))
+            cur.execute("DELETE FROM bookings WHERE id = %s", (booking_id,))
+            cur.execute("UPDATE time_slots SET is_available = true WHERE id = %s", (slot_id,))
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'message': 'Заявка удалена, слот освобожден'}),
                 'isBase64Encoded': False
             }
         
