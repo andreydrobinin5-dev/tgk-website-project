@@ -108,6 +108,27 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
         
+        elif method == 'DELETE':
+            data = json.loads(event.get('body', '{}'))
+            slot_id = data.get('slot_id')
+            
+            cur.execute("""
+                DELETE FROM time_slots 
+                WHERE id = %s
+            """, (slot_id,))
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'message': 'Слот удален'}),
+                'isBase64Encoded': False
+            }
+        
     except Exception as e:
         return {
             'statusCode': 500,

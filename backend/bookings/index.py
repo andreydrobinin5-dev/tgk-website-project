@@ -110,7 +110,7 @@ def handler(event: dict, context) -> dict:
             cur.execute("""
                 SELECT b.id, b.client_name, b.client_contact, 
                        b.booking_type, b.comment, b.payment_status,
-                       ts.slot_date, ts.slot_time
+                       ts.slot_date, ts.slot_time, b.receipt_url, b.created_at
                 FROM bookings b
                 JOIN time_slots ts ON b.slot_id = ts.id
                 ORDER BY b.created_at DESC
@@ -118,16 +118,31 @@ def handler(event: dict, context) -> dict:
             """)
             
             bookings = cur.fetchall()
-            result = [{
-                'id': row[0],
-                'name': row[1],
-                'contact': row[2],
-                'type': row[3],
-                'comment': row[4],
-                'payment_status': row[5],
-                'date': row[6].isoformat(),
-                'time': str(row[7])
-            } for row in bookings]
+            result = []
+            
+            for row in bookings:
+                booking_id = row[0]
+                
+                cur.execute("""
+                    SELECT photo_url FROM booking_photos 
+                    WHERE booking_id = %s
+                """, (booking_id,))
+                
+                photos = [photo[0] for photo in cur.fetchall()]
+                
+                result.append({
+                    'id': booking_id,
+                    'name': row[1],
+                    'contact': row[2],
+                    'type': row[3],
+                    'comment': row[4],
+                    'payment_status': row[5],
+                    'date': row[6].isoformat(),
+                    'time': str(row[7]),
+                    'receipt_url': row[8],
+                    'created_at': row[9].isoformat() if row[9] else None,
+                    'photos': photos
+                })
             
             return {
                 'statusCode': 200,
