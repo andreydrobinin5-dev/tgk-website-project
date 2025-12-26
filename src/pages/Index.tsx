@@ -380,7 +380,7 @@ const Index = () => {
               className="rounded-xl overflow-hidden border border-border h-[200px] block hover:opacity-90 transition-opacity"
             >
               <img 
-                src="https://cdn.poehali.dev/files/image.png" 
+                src="https://cdn.poehali.dev/files/photo_2025-12-27_02-34-26.jpg" 
                 alt="Карта расположения студии" 
                 className="w-full h-full object-cover"
               />
