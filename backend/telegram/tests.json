@@ -1,0 +1,18 @@
+{
+  "tests": [
+    {
+      "name": "Send booking to Telegram",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "booking_id": 1,
+        "receipt_url": ""
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
