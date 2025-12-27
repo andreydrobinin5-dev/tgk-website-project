@@ -38,6 +38,7 @@ interface BookingModalProps {
   onReceiptUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmitBooking: () => void;
   onSubmitPayment: () => void;
+  isCompressing?: boolean;
 }
 
 const BookingModal = ({
@@ -54,7 +55,8 @@ const BookingModal = ({
   receiptImage,
   onReceiptUpload,
   onSubmitBooking,
-  onSubmitPayment
+  onSubmitPayment,
+  isCompressing = false
 }: BookingModalProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
@@ -220,9 +222,10 @@ const BookingModal = ({
 
                     <Button 
                       onClick={onSubmitBooking} 
+                      disabled={isCompressing}
                       className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground text-base"
                     >
-                      Продолжить к оплате
+                      {isCompressing ? 'Обработка фото...' : 'Продолжить к оплате'}
                     </Button>
                   </div>
                 )}
@@ -259,9 +262,9 @@ const BookingModal = ({
                 <Button 
                   onClick={onSubmitPayment} 
                   className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground text-base"
-                  disabled={!receiptImage}
+                  disabled={!receiptImage || isCompressing}
                 >
-                  Записаться
+                  {isCompressing ? 'Обработка чека...' : 'Записаться'}
                 </Button>
               </div>
             )}

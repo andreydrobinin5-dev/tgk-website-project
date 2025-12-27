@@ -25,6 +25,7 @@ const Index = () => {
   const [receiptImage, setReceiptImage] = useState<string>('');
   const [bookingId, setBookingId] = useState<number | null>(null);
   const [showPayment, setShowPayment] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -157,6 +158,12 @@ const Index = () => {
     const files = e.target.files;
     if (!files) return;
 
+    setIsCompressing(true);
+    toast({
+      title: 'Сжимаем фото...',
+      description: `Обработка ${files.length} фото`
+    });
+
     const compressed: Promise<string>[] = [];
     
     for (let i = 0; i < Math.min(files.length, 5); i++) {
@@ -165,14 +172,32 @@ const Index = () => {
 
     const results = await Promise.all(compressed);
     setSelectedImages(results);
+    setIsCompressing(false);
+    
+    toast({
+      title: 'Готово!',
+      description: `${results.length} фото загружено`
+    });
   };
 
   const handleReceiptUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setIsCompressing(true);
+    toast({
+      title: 'Сжимаем чек...',
+      description: 'Подготовка к отправке'
+    });
+
     const compressed = await compressImage(file);
     setReceiptImage(compressed);
+    setIsCompressing(false);
+    
+    toast({
+      title: 'Готово!',
+      description: 'Чек загружен'
+    });
   };
 
   const handleSubmitBooking = async () => {
@@ -379,6 +404,7 @@ const Index = () => {
         onReceiptUpload={handleReceiptUpload}
         onSubmitBooking={handleSubmitBooking}
         onSubmitPayment={handleSubmitPayment}
+        isCompressing={isCompressing}
       />
 
       <footer className="py-12 px-6 bg-muted border-t border-border">
