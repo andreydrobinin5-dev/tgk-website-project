@@ -35,9 +35,7 @@ const AdminSlots = () => {
 
   const fetchSlots = async () => {
     try {
-      const response = await fetch('https://functions.poehali.dev/9689b825-c9ac-49db-b85b-f1310460470d', {
-        credentials: 'include'
-      });
+      const response = await fetch('https://functions.poehali.dev/9689b825-c9ac-49db-b85b-f1310460470d');
       const data = await response.json();
       setSlots(data);
     } catch (error) {
@@ -70,7 +68,6 @@ const AdminSlots = () => {
         headers: { 
           'Content-Type': 'application/json'
         },
-        credentials: 'include',
         body: JSON.stringify({
           date: dateStr,
           time: newSlotTime
@@ -104,7 +101,6 @@ const AdminSlots = () => {
         headers: { 
           'Content-Type': 'application/json'
         },
-        credentials: 'include',
         body: JSON.stringify({ slot_id: slotId })
       });
 
@@ -173,7 +169,6 @@ const AdminSlots = () => {
         headers: { 
           'Content-Type': 'application/json'
         },
-        credentials: 'include',
         body: JSON.stringify({
           date: dateStr,
           time: time

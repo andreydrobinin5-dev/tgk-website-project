@@ -37,9 +37,7 @@ const AdminBookings = () => {
 
   const fetchBookings = async () => {
     try {
-      const response = await fetch('https://functions.poehali.dev/406a4a18-71da-46ec-a8a4-efc9c7c87810', {
-        credentials: 'include'
-      });
+      const response = await fetch('https://functions.poehali.dev/406a4a18-71da-46ec-a8a4-efc9c7c87810');
       const data = await response.json();
       setBookings(data);
     } catch (error) {
@@ -74,8 +72,7 @@ const AdminBookings = () => {
 
     try {
       const response = await fetch(`https://functions.poehali.dev/406a4a18-71da-46ec-a8a4-efc9c7c87810?id=${bookingId}`, {
-        method: 'DELETE',
-        credentials: 'include'
+        method: 'DELETE'
       });
 
       if (response.ok) {
