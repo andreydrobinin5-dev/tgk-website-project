@@ -30,9 +30,6 @@ const PortfolioSection = ({ portfolio }: PortfolioSectionProps) => {
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               </div>
-              <CardContent className="p-6">
-                <h3 className="font-medium text-center text-muted-foreground">{item.title}</h3>
-              </CardContent>
             </Card>
           ))}
         </div>
