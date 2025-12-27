@@ -1,20 +1,12 @@
 {
   "tests": [
     {
-      "name": "Get bookings list",
-      "method": "GET",
-      "path": "/",
-      "expectedStatus": 200,
-      "expectedBody": [],
-      "bodyMatcher": "type"
-    },
-    {
-      "name": "Create booking",
+      "name": "Create booking with telegram",
       "method": "POST",
       "path": "/",
       "body": {
         "slot_id": 1,
-        "name": "Тестовый клиент",
+        "name": "Анна",
         "contact": "@testuser",
         "type": "know_what_i_want",
         "comment": "Хочу френч",
@@ -24,6 +16,24 @@
       "expectedBody": {
         "booking_id": "number",
         "message": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create booking with phone",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "slot_id": 1,
+        "name": "Мария",
+        "contact": "+7 999 123-45-67",
+        "type": "not_sure",
+        "comment": "",
+        "photos": []
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "booking_id": "number"
       },
       "bodyMatcher": "partial"
     }
