@@ -14,6 +14,9 @@ interface PortfolioSectionProps {
 
 const PortfolioSection = ({ portfolio }: PortfolioSectionProps) => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [showAll, setShowAll] = useState(false);
+  
+  const displayedPortfolio = showAll ? portfolio : portfolio.slice(0, 6);
 
   const handlePrev = () => {
     if (selectedIndex !== null && selectedIndex > 0) {
@@ -47,7 +50,7 @@ const PortfolioSection = ({ portfolio }: PortfolioSectionProps) => {
           Мои работы
         </h2>
         <div className="grid md:grid-cols-3 gap-8">
-          {portfolio.map((item, idx) => (
+          {displayedPortfolio.map((item, idx) => (
             <Card 
               key={idx} 
               className="overflow-hidden group cursor-pointer bg-card border-border hover:shadow-xl transition-all duration-500 animate-scale-in"
@@ -67,6 +70,17 @@ const PortfolioSection = ({ portfolio }: PortfolioSectionProps) => {
             </Card>
           ))}
         </div>
+        
+        {!showAll && portfolio.length > 6 && (
+          <div className="flex justify-center mt-12">
+            <button
+              onClick={() => setShowAll(true)}
+              className="px-8 py-4 bg-primary text-primary-foreground rounded-full font-medium hover:bg-primary/90 transition-all duration-300 hover:scale-105 shadow-lg"
+            >
+              Смотреть больше
+            </button>
+          </div>
+        )}
       </div>
     </section>
 
