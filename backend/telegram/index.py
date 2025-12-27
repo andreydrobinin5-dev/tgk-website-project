@@ -94,15 +94,24 @@ def handler(event: dict, context) -> dict:
         chat_id = os.environ.get('TELEGRAM_CHAT_ID')
         
         if not bot_token or not chat_id:
+            cur.execute("""
+                UPDATE bookings 
+                SET telegram_sent = false
+                WHERE id = %s
+            """, (booking_id,))
+            conn.commit()
+            cur.close()
+            conn.close()
+            
             return {
-                'statusCode': 500,
+                'statusCode': 200,
                 'headers': {
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': frontend_domain,
                     'Access-Control-Allow-Credentials': 'true',
                     **SECURITY_HEADERS
                 },
-                'body': json.dumps({'error': 'Telegram не настроен'}),
+                'body': json.dumps({'message': 'Заявка сохранена (Telegram не настроен)'}),
                 'isBase64Encoded': False
             }
         
