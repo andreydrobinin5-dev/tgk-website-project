@@ -1,5 +1,5 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 
@@ -13,7 +13,31 @@ interface PortfolioSectionProps {
 }
 
 const PortfolioSection = ({ portfolio }: PortfolioSectionProps) => {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  const handlePrev = () => {
+    if (selectedIndex !== null && selectedIndex > 0) {
+      setSelectedIndex(selectedIndex - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (selectedIndex !== null && selectedIndex < portfolio.length - 1) {
+      setSelectedIndex(selectedIndex + 1);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (selectedIndex === null) return;
+      if (e.key === 'ArrowLeft') handlePrev();
+      if (e.key === 'ArrowRight') handleNext();
+      if (e.key === 'Escape') setSelectedIndex(null);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedIndex]);
 
   return (
     <>
@@ -28,7 +52,7 @@ const PortfolioSection = ({ portfolio }: PortfolioSectionProps) => {
               key={idx} 
               className="overflow-hidden group cursor-pointer bg-card border-border hover:shadow-xl transition-all duration-500 animate-scale-in"
               style={{ animationDelay: `${idx * 0.1}s` }}
-              onClick={() => setSelectedImage(item.image)}
+              onClick={() => setSelectedIndex(idx)}
             >
               <div className="aspect-square overflow-hidden relative">
                 <img 
@@ -46,20 +70,39 @@ const PortfolioSection = ({ portfolio }: PortfolioSectionProps) => {
       </div>
     </section>
 
-    <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
-      <DialogContent className="max-w-7xl w-[95vw] h-[95vh] p-0 bg-black/95 border-none">
+    <Dialog open={selectedIndex !== null} onOpenChange={() => setSelectedIndex(null)}>
+      <DialogContent className="max-w-4xl w-[90vw] h-[80vh] p-0 bg-black/95 border-none">
         <div className="relative w-full h-full flex items-center justify-center">
           <button 
-            onClick={() => setSelectedImage(null)}
+            onClick={() => setSelectedIndex(null)}
             className="absolute top-4 right-4 z-50 bg-white/10 hover:bg-white/20 rounded-full p-2 transition-colors"
           >
             <Icon name="X" className="text-white" size={24} />
           </button>
-          {selectedImage && (
+
+          {selectedIndex !== null && selectedIndex > 0 && (
+            <button 
+              onClick={handlePrev}
+              className="absolute left-4 z-50 bg-white/10 hover:bg-white/20 rounded-full p-3 transition-colors"
+            >
+              <Icon name="ChevronLeft" className="text-white" size={32} />
+            </button>
+          )}
+
+          {selectedIndex !== null && selectedIndex < portfolio.length - 1 && (
+            <button 
+              onClick={handleNext}
+              className="absolute right-4 z-50 bg-white/10 hover:bg-white/20 rounded-full p-3 transition-colors"
+            >
+              <Icon name="ChevronRight" className="text-white" size={32} />
+            </button>
+          )}
+
+          {selectedIndex !== null && (
             <img 
-              src={selectedImage} 
+              src={portfolio[selectedIndex].image} 
               alt="Полный размер"
-              className="max-w-full max-h-full object-contain"
+              className="max-w-full max-h-full object-contain px-16"
             />
           )}
         </div>
