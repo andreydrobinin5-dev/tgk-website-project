@@ -251,13 +251,18 @@ def handler(event: dict, context) -> dict:
             }
         
         elif method == 'GET':
-            cookie_header = event.get('headers', {}).get('cookie', '') or event.get('headers', {}).get('Cookie', '')
-            token = None
-            if cookie_header:
-                for cookie in cookie_header.split('; '):
-                    if cookie.startswith('admin_token='):
-                        token = cookie.split('=', 1)[1]
-                        break
+            # Получаем токен из заголовка X-Admin-Token или из cookie
+            headers = event.get('headers', {})
+            token = headers.get('X-Admin-Token') or headers.get('x-admin-token')
+            
+            if not token:
+                cookie_header = headers.get('cookie', '') or headers.get('Cookie', '')
+                if cookie_header:
+                    for cookie in cookie_header.split('; '):
+                        if cookie.startswith('admin_token='):
+                            token = cookie.split('=', 1)[1]
+                            break
+            
             if not verify_admin_token(token):
                 return {
                     'statusCode': 401,
@@ -321,13 +326,18 @@ def handler(event: dict, context) -> dict:
             }
         
         elif method == 'DELETE':
-            cookie_header = event.get('headers', {}).get('cookie', '') or event.get('headers', {}).get('Cookie', '')
-            token = None
-            if cookie_header:
-                for cookie in cookie_header.split('; '):
-                    if cookie.startswith('admin_token='):
-                        token = cookie.split('=', 1)[1]
-                        break
+            # Получаем токен из заголовка X-Admin-Token или из cookie
+            headers = event.get('headers', {})
+            token = headers.get('X-Admin-Token') or headers.get('x-admin-token')
+            
+            if not token:
+                cookie_header = headers.get('cookie', '') or headers.get('Cookie', '')
+                if cookie_header:
+                    for cookie in cookie_header.split('; '):
+                        if cookie.startswith('admin_token='):
+                            token = cookie.split('=', 1)[1]
+                            break
+            
             if not verify_admin_token(token):
                 return {
                     'statusCode': 401,

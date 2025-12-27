@@ -55,6 +55,7 @@ const Admin = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
+        localStorage.setItem('admin_token', data.token);
         localStorage.setItem('admin_token_expiry', data.expires_at);
         setTokenExpiry(data.expires_at);
         setIsAuthenticated(true);

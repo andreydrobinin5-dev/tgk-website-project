@@ -117,19 +117,16 @@ def handler(event: dict, context) -> dict:
                 
                 conn.commit()
                 
-                cookie_header = f'admin_token={token}; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=604800'
-                
                 return {
                     'statusCode': 200,
                     'headers': {
                         'Content-Type': 'application/json',
                         'Access-Control-Allow-Origin': frontend_domain,
-                        'Access-Control-Allow-Credentials': 'true',
-                        'Set-Cookie': cookie_header,
                         **SECURITY_HEADERS
                     },
                     'body': json.dumps({
                         'success': True,
+                        'token': token,
                         'expires_at': expires_at.isoformat()
                     }),
                     'isBase64Encoded': False
