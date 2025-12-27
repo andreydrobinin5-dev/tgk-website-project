@@ -102,7 +102,7 @@ const PortfolioSection = ({ portfolio }: PortfolioSectionProps) => {
             <img 
               src={portfolio[selectedIndex].image} 
               alt="Полный размер"
-              className="max-w-full max-h-full object-contain px-16"
+              className="max-w-[calc(100%-8rem)] max-h-[calc(100%-4rem)] object-contain"
             />
           )}
         </div>
