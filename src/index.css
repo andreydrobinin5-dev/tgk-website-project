@@ -242,9 +242,18 @@
 }
 
 .logo-text {
-  color: #e91e63;
-  font-weight: 800;
-  text-shadow: 2px 2px 4px rgba(233, 30, 99, 0.3);
+  color: #ffb3d9;
+  font-weight: 900;
+  text-shadow:
+    0 1px 0 #ff9ec9,
+    0 2px 0 #ff89b9,
+    0 3px 0 #ff74a9,
+    0 4px 0 #ff5f99,
+    0 5px 0 #ff4a89,
+    0 6px 8px rgba(255, 74, 137, 0.4),
+    0 8px 12px rgba(255, 74, 137, 0.3),
+    0 10px 20px rgba(255, 74, 137, 0.2);
+  letter-spacing: 0.05em;
 }
 
 .logo-letter {
