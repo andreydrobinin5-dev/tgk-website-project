@@ -64,6 +64,9 @@ const AdminSlots = () => {
 
     try {
       const token = localStorage.getItem('admin_token');
+      console.log('Token from localStorage:', token);
+      console.log('Sending request to add slot:', { date: dateStr, time: newSlotTime });
+      
       const response = await fetch('https://functions.poehali.dev/9689b825-c9ac-49db-b85b-f1310460470d', {
         method: 'POST',
         headers: { 
@@ -77,6 +80,10 @@ const AdminSlots = () => {
         })
       });
 
+      console.log('Response status:', response.status);
+      const responseData = await response.json();
+      console.log('Response data:', responseData);
+
       if (response.ok) {
         toast({
           title: 'Успешно',
@@ -86,9 +93,14 @@ const AdminSlots = () => {
         setIsAddDialogOpen(false);
         fetchSlots();
       } else {
-        throw new Error('Failed to add slot');
+        toast({
+          title: 'Ошибка',
+          description: responseData.error || 'Не удалось добавить слот',
+          variant: 'destructive'
+        });
       }
     } catch (error) {
+      console.error('Error adding slot:', error);
       toast({
         title: 'Ошибка',
         description: 'Не удалось добавить слот',
@@ -171,6 +183,9 @@ const AdminSlots = () => {
 
     try {
       const token = localStorage.getItem('admin_token');
+      console.log('Quick add - Token from localStorage:', token);
+      console.log('Quick add - Sending request:', { date: dateStr, time });
+      
       const response = await fetch('https://functions.poehali.dev/9689b825-c9ac-49db-b85b-f1310460470d', {
         method: 'POST',
         headers: { 
@@ -184,6 +199,10 @@ const AdminSlots = () => {
         })
       });
 
+      console.log('Quick add - Response status:', response.status);
+      const responseData = await response.json();
+      console.log('Quick add - Response data:', responseData);
+
       if (response.ok) {
         toast({
           title: 'Успешно',
@@ -191,9 +210,14 @@ const AdminSlots = () => {
         });
         fetchSlots();
       } else {
-        throw new Error('Failed to add slot');
+        toast({
+          title: 'Ошибка',
+          description: responseData.error || 'Не удалось добавить слот',
+          variant: 'destructive'
+        });
       }
     } catch (error) {
+      console.error('Quick add - Error:', error);
       toast({
         title: 'Ошибка',
         description: 'Не удалось добавить слот',
