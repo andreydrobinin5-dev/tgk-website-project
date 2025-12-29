@@ -150,6 +150,7 @@ const AdminSlots = () => {
   };
 
   const groupedSlots = groupSlotsByDate(slots);
+  console.log('Grouped slots keys:', Object.keys(groupedSlots));
 
   const tileClassName = ({ date }: { date: Date }) => {
     const year = date.getFullYear();
