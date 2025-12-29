@@ -6,8 +6,7 @@ from utils import verify_admin_token
 
 SECURITY_HEADERS = {
     'X-Frame-Options': 'DENY',
-    'X-Content-Type-Options': 'nosniff',
-    'Content-Security-Policy': "default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self' https://cdn.poehali.dev; style-src 'self'"
+    'X-Content-Type-Options': 'nosniff'
 }
 
 def handler(event: dict, context) -> dict:
