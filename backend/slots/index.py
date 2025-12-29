@@ -194,6 +194,13 @@ def handler(event: dict, context) -> dict:
             data = json.loads(event.get('body', '{}'))
             slot_id = data.get('slot_id')
             
+            # Сначала удаляем связанные бронирования
+            cur.execute("""
+                DELETE FROM bookings 
+                WHERE slot_id = %s
+            """, (slot_id,))
+            
+            # Затем удаляем сам слот
             cur.execute("""
                 DELETE FROM time_slots 
                 WHERE id = %s
