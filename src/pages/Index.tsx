@@ -336,9 +336,9 @@ const Index = () => {
         <div className="container mx-auto px-4 md:px-6 py-3 md:py-4">
           <div className="flex items-center justify-between">
             <img 
-              src="https://cdn.poehali.dev/projects/c846c6bc-a002-4737-a261-823e13b16e94/files/f88e04a1-f09f-41f0-a94c-b9b48f7f1db8.jpg" 
+              src="https://cdn.poehali.dev/projects/c846c6bc-a002-4737-a261-823e13b16e94/files/73141689-7721-43f4-bdd0-9bf41fe53063.jpg" 
               alt="YOLO NAIILS" 
-              className="h-14 md:h-16 w-auto object-contain"
+              className="h-14 md:h-16 w-auto object-contain logo-animate"
             />
             <div className="flex items-center gap-2 md:gap-3">
               <Button 
