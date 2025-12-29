@@ -335,22 +335,9 @@ const Index = () => {
       <nav className="fixed top-0 w-full bg-background/80 backdrop-blur-xl z-50 border-b border-border">
         <div className="container mx-auto px-4 md:px-6 py-3 md:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex flex-col items-start">
-              <div className="logo-text text-2xl md:text-3xl font-bold tracking-tight">
-                {'YOLO'.split('').map((letter, i) => (
-                  <span key={i} className="logo-letter" style={{ animationDelay: `${i * 0.1}s` }}>
-                    {letter}
-                  </span>
-                ))}
-              </div>
-              <div className="logo-text text-2xl md:text-3xl font-bold tracking-tight">
-                {'NAIILS'.split('').map((letter, i) => (
-                  <span key={i} className="logo-letter" style={{ animationDelay: `${(i + 4) * 0.1}s` }}>
-                    {letter}
-                  </span>
-                ))}
-              </div>
-            </div>
+            <h1 className="text-xl md:text-2xl font-semibold tracking-tight">
+              YOLO NAIILS
+            </h1>
             <div className="flex items-center gap-2 md:gap-3">
               <Button 
                 onClick={() => setGalleryModalOpen(true)}
