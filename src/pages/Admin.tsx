@@ -92,6 +92,42 @@ const Admin = () => {
     });
   };
 
+  const handleCleanup = async () => {
+    const confirmed = window.confirm('Удалить все записи старше 1 дня? Это действие нельзя отменить.');
+    if (!confirmed) return;
+
+    setIsLoading(true);
+    try {
+      const response = await fetch('https://functions.poehali.dev/73351d50-e089-4cfe-a1ba-4653268b23d0', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: 'Очистка выполнена',
+          description: `Удалено ${data.deleted} старых записей`
+        });
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось выполнить очистку',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Проблема с подключением',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
@@ -134,10 +170,16 @@ const Admin = () => {
               />
               <h1 className="text-2xl font-semibold">Админ-панель</h1>
             </div>
-            <Button onClick={handleLogout} variant="outline">
-              <Icon name="LogOut" size={18} className="mr-2" />
-              Выйти
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button onClick={handleCleanup} variant="outline" size="sm" disabled={isLoading}>
+                <Icon name="Trash2" size={18} className="mr-2" />
+                Очистить старое
+              </Button>
+              <Button onClick={handleLogout} variant="outline">
+                <Icon name="LogOut" size={18} className="mr-2" />
+                Выйти
+              </Button>
+            </div>
           </div>
         </div>
       </nav>
