@@ -65,23 +65,15 @@ def handler(event: dict, context) -> dict:
             headers = event.get('headers', {})
             token = headers.get('X-Admin-Token') or headers.get('x-admin-token')
             
-            print(f"DEBUG: Headers received: {headers}")
-            print(f"DEBUG: Token from header: {token}")
-            
             if not token:
                 cookie_header = headers.get('cookie', '') or headers.get('Cookie', '')
-                print(f"DEBUG: Cookie header: {cookie_header}")
                 if cookie_header:
                     for cookie in cookie_header.split('; '):
                         if cookie.startswith('admin_token='):
                             token = cookie.split('=', 1)[1]
                             break
             
-            print(f"DEBUG: Final token: {token}")
-            is_valid = verify_admin_token(token)
-            print(f"DEBUG: Token valid: {is_valid}")
-            
-            if not is_valid:
+            if not verify_admin_token(token):
                 return {
                     'statusCode': 401,
                     'headers': {

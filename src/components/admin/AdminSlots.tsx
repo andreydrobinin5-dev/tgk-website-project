@@ -170,11 +170,14 @@ const AdminSlots = () => {
     const dateStr = `${year}-${month}-${day}`;
 
     try {
+      const token = localStorage.getItem('admin_token');
       const response = await fetch('https://functions.poehali.dev/9689b825-c9ac-49db-b85b-f1310460470d', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-Admin-Token': token || ''
         },
+        credentials: 'include',
         body: JSON.stringify({
           date: dateStr,
           time: time
