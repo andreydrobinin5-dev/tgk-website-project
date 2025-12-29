@@ -144,10 +144,16 @@ def handler(event: dict, context) -> dict:
             photo_url = photo[0]
             requests.post(f'https://api.telegram.org/bot{bot_token}/sendPhoto', json={
                 'chat_id': chat_id,
-                'photo': photo_url
+                'photo': photo_url,
+                'caption': '📸 Примеры работ от клиента'
             })
         
         if receipt_url:
+            requests.post(f'https://api.telegram.org/bot{bot_token}/sendPhoto', json={
+                'chat_id': chat_id,
+                'photo': receipt_url,
+                'caption': '💳 Чек об оплате предоплаты'
+            })
             cur.execute("""
                 UPDATE bookings 
                 SET receipt_url = %s, telegram_sent = true
