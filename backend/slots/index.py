@@ -194,27 +194,30 @@ def handler(event: dict, context) -> dict:
             data = json.loads(event.get('body', '{}'))
             slot_id = data.get('slot_id')
             
-            # Проверяем есть ли бронирования на этот слот
+            # Получаем список ID бронирований для удаления связанных фото
             cur.execute("""
-                SELECT COUNT(*) FROM bookings WHERE slot_id = %s
+                SELECT id FROM bookings WHERE slot_id = %s
             """, (slot_id,))
-            bookings_count = cur.fetchone()[0]
+            booking_ids = [row[0] for row in cur.fetchall()]
             
-            if bookings_count > 0:
-                # Если есть бронирования - просто скрываем слот (помечаем недоступным)
-                cur.execute("""
-                    UPDATE time_slots 
-                    SET is_available = false
-                    WHERE id = %s
-                """, (slot_id,))
-                message = 'Слот помечен как недоступный (есть бронирования)'
-            else:
-                # Если нет бронирований - можно полностью удалить
-                cur.execute("""
-                    DELETE FROM time_slots 
-                    WHERE id = %s
-                """, (slot_id,))
-                message = 'Слот удален'
+            # Удаляем связанные фотографии бронирований (если есть таблица)
+            for booking_id in booking_ids:
+                try:
+                    cur.execute("""
+                        DELETE FROM booking_photos WHERE booking_id = %s
+                    """, (booking_id,))
+                except Exception:
+                    pass  # Таблица может не существовать
+            
+            # Удаляем бронирования на этот слот
+            cur.execute("""
+                DELETE FROM bookings WHERE slot_id = %s
+            """, (slot_id,))
+            
+            # Теперь можно удалить сам слот
+            cur.execute("""
+                DELETE FROM time_slots WHERE id = %s
+            """, (slot_id,))
             
             conn.commit()
             
@@ -225,7 +228,7 @@ def handler(event: dict, context) -> dict:
                     'Access-Control-Allow-Origin': '*',
                     **SECURITY_HEADERS
                 },
-                'body': json.dumps({'message': message}),
+                'body': json.dumps({'message': 'Слот удален'}),
                 'isBase64Encoded': False
             }
         
