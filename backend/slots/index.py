@@ -26,10 +26,12 @@ def handler(event: dict, context) -> dict:
             'isBase64Encoded': False
         }
     
-    conn = psycopg2.connect(os.environ['DATABASE_URL'])
-    cur = conn.cursor()
+    conn = None
+    cur = None
     
     try:
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        cur = conn.cursor()
         if method == 'GET':
             cur.execute("""
                 SELECT id, slot_date, slot_time, is_available 
@@ -211,6 +213,9 @@ def handler(event: dict, context) -> dict:
             }
         
     except Exception as e:
+        print(f"Error in slots handler: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return {
             'statusCode': 500,
             'headers': {
@@ -222,5 +227,7 @@ def handler(event: dict, context) -> dict:
             'isBase64Encoded': False
         }
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
