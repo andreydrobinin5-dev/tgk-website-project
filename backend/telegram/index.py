@@ -2,6 +2,8 @@ import json
 import os
 import psycopg2
 import requests
+import base64
+import boto3
 
 SECURITY_HEADERS = {
     'X-Frame-Options': 'DENY',
@@ -44,7 +46,30 @@ def handler(event: dict, context) -> dict:
     try:
         data = json.loads(event.get('body', '{}'))
         booking_id = data.get('booking_id')
-        receipt_url = data.get('receipt_url', '')
+        receipt_base64 = data.get('receipt_url', '')
+        
+        receipt_cdn_url = ''
+        if receipt_base64:
+            if receipt_base64.startswith('data:image'):
+                receipt_base64 = receipt_base64.split(',')[1]
+            
+            receipt_bytes = base64.b64decode(receipt_base64)
+            
+            s3 = boto3.client('s3',
+                endpoint_url='https://bucket.poehali.dev',
+                aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+                aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY']
+            )
+            
+            file_key = f'receipts/{booking_id}/receipt.jpg'
+            s3.put_object(
+                Bucket='files',
+                Key=file_key,
+                Body=receipt_bytes,
+                ContentType='image/jpeg'
+            )
+            
+            receipt_cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{file_key}"
         
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
@@ -87,7 +112,7 @@ def handler(event: dict, context) -> dict:
 🕐 <b>Время:</b> {slot_time}
 💡 <b>Сценарий:</b> {type_labels.get(booking_type, booking_type)}
 💬 <b>Комментарий:</b> {comment if comment else 'нет'}
-💳 <b>Предоплата:</b> {'✅ чек приложен' if receipt_url else '⏳ ожидается'}
+💳 <b>Предоплата:</b> {'✅ чек приложен' if receipt_cdn_url else '⏳ ожидается'}
 """
         
         bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
@@ -148,17 +173,17 @@ def handler(event: dict, context) -> dict:
                 'caption': '📸 Примеры работ от клиента'
             })
         
-        if receipt_url:
+        if receipt_cdn_url:
             requests.post(f'https://api.telegram.org/bot{bot_token}/sendPhoto', json={
                 'chat_id': chat_id,
-                'photo': receipt_url,
+                'photo': receipt_cdn_url,
                 'caption': '💳 Чек об оплате предоплаты'
             })
             cur.execute("""
                 UPDATE bookings 
                 SET receipt_url = %s, telegram_sent = true
                 WHERE id = %s
-            """, (receipt_url, booking_id))
+            """, (receipt_cdn_url, booking_id))
         else:
             cur.execute("""
                 UPDATE bookings 
