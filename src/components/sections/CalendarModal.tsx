@@ -46,15 +46,13 @@ const CalendarModal = ({ open, onOpenChange, groupedSlots, onBookNow }: Calendar
   const tileContent = ({ date }: { date: Date }) => {
     const dateStr = getLocalDateStr(date);
     const slots = groupedSlots[dateStr];
-    if (slots) {
-      const available = slots.filter(s => s.available).length;
-      if (available > 0) {
-        return (
-          <div className="text-[10px] sm:text-xs mt-0.5 sm:mt-1 font-semibold text-primary">
-            {available} окон
-          </div>
-        );
-      }
+    
+    if (slots && slots.length > 0) {
+      return (
+        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[10px] sm:text-xs font-semibold px-1.5 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/30">
+          {slots.length}
+        </div>
+      );
     }
     return null;
   };
