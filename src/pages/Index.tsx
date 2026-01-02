@@ -5,7 +5,6 @@ import HeroSection from '@/components/sections/HeroSection';
 import PortfolioSection from '@/components/sections/PortfolioSection';
 import BookingModal from '@/components/sections/BookingModal';
 import GalleryModal from '@/components/sections/GalleryModal';
-import CalendarModal from '@/components/sections/CalendarModal';
 import Icon from '@/components/ui/icon';
 
 interface TimeSlot {
@@ -18,7 +17,6 @@ interface TimeSlot {
 const Index = () => {
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [galleryModalOpen, setGalleryModalOpen] = useState(false);
-  const [calendarModalOpen, setCalendarModalOpen] = useState(false);
   const [slots, setSlots] = useState<TimeSlot[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
@@ -350,15 +348,6 @@ const Index = () => {
                 <span className="hidden md:inline">Работы</span>
               </Button>
               <Button 
-                onClick={() => setCalendarModalOpen(true)}
-                variant="ghost"
-                size="sm"
-                className="text-foreground/70 hover:bg-muted rounded-full px-2 md:px-4"
-              >
-                <Icon name="Calendar" size={18} className="md:mr-2" />
-                <span className="hidden md:inline">Календарь</span>
-              </Button>
-              <Button 
                 onClick={() => setBookingModalOpen(true)}
                 size="sm"
                 className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-3 md:px-6 text-sm"
@@ -381,13 +370,6 @@ const Index = () => {
         open={galleryModalOpen}
         onOpenChange={setGalleryModalOpen}
         portfolio={portfolio}
-      />
-
-      <CalendarModal
-        open={calendarModalOpen}
-        onOpenChange={setCalendarModalOpen}
-        groupedSlots={groupedSlots}
-        onBookNow={() => setBookingModalOpen(true)}
       />
 
       <BookingModal
