@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 
 interface Booking {
@@ -194,6 +195,7 @@ const AdminBookings = () => {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Детали заявки</DialogTitle>
+            <DialogDescription>Полная информация о записи клиента</DialogDescription>
           </DialogHeader>
           {selectedBooking && (
             <ScrollArea className="max-h-[70vh]">

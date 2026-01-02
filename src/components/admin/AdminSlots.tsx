@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from '@/components/ui/dialog';
 
 interface TimeSlot {
@@ -64,8 +65,6 @@ const AdminSlots = () => {
 
     try {
       const token = localStorage.getItem('admin_token');
-      console.log('Token from localStorage:', token);
-      console.log('Sending request to add slot:', { date: dateStr, time: newSlotTime });
       
       const response = await fetch('https://functions.poehali.dev/9689b825-c9ac-49db-b85b-f1310460470d', {
         method: 'POST',
@@ -79,9 +78,7 @@ const AdminSlots = () => {
         })
       });
 
-      console.log('Response status:', response.status);
       const responseData = await response.json();
-      console.log('Response data:', responseData);
 
       if (response.ok) {
         toast({
@@ -150,7 +147,6 @@ const AdminSlots = () => {
   };
 
   const groupedSlots = groupSlotsByDate(slots);
-  console.log('Grouped slots keys:', Object.keys(groupedSlots));
 
   const tileClassName = ({ date }: { date: Date }) => {
     const year = date.getFullYear();
@@ -182,8 +178,6 @@ const AdminSlots = () => {
 
     try {
       const token = localStorage.getItem('admin_token');
-      console.log('Quick add - Token from localStorage:', token);
-      console.log('Quick add - Sending request:', { date: dateStr, time });
       
       const response = await fetch('https://functions.poehali.dev/9689b825-c9ac-49db-b85b-f1310460470d', {
         method: 'POST',
@@ -197,9 +191,7 @@ const AdminSlots = () => {
         })
       });
 
-      console.log('Quick add - Response status:', response.status);
       const responseData = await response.json();
-      console.log('Quick add - Response data:', responseData);
 
       if (response.ok) {
         toast({
@@ -248,6 +240,7 @@ const AdminSlots = () => {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Новый слот</DialogTitle>
+                  <DialogDescription>Добавьте новое время для записи клиентов</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 pt-4">
                   <div>

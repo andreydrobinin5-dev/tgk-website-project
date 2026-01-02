@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface PortfolioItem {
@@ -20,6 +20,9 @@ const GalleryModal = ({ open, onOpenChange, portfolio }: GalleryModalProps) => {
           <DialogTitle className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight">
             Мои работы
           </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Галерея выполненных работ по маникюру
+          </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="h-full max-h-[calc(95vh-100px)] sm:max-h-[calc(90vh-120px)]">

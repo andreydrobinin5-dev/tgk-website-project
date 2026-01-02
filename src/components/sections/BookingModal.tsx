@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -117,9 +117,9 @@ const BookingModal = ({
           <DialogTitle className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
             {!showPayment ? '✨ Запись на маникюр' : '💳 Подтверждение оплаты'}
           </DialogTitle>
-          {!showPayment && (
-            <p className="text-sm text-muted-foreground mt-2">Выберите удобное время и заполните форму</p>
-          )}
+          <DialogDescription className="text-sm text-muted-foreground mt-2">
+            {!showPayment ? 'Выберите удобное время и заполните форму' : 'Внесите предоплату 300₽ для подтверждения записи'}
+          </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="h-full max-h-[calc(95vh-100px)] sm:max-h-[calc(90vh-120px)]">
