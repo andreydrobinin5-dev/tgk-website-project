@@ -172,6 +172,14 @@ if ! command -v python3 &> /dev/null; then
 else
     log_info "Python уже установлен ✓"
 fi
+
+# Проверка python3-venv (критично для виртуальных окружений)
+if ! python3 -m venv --help &> /dev/null; then
+    log_info "Установка python3-venv..."
+    apt install -y python3-venv >> "$LOG_FILE" 2>&1
+    check_success "Установка python3-venv"
+fi
+
 log_debug "Python версия: $(python3 --version)"
 
 log_info "Проверка PM2..."
