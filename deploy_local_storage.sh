@@ -4,6 +4,7 @@
 # YOLO NAIILS - Автоматический скрипт развертывания на VPS
 # Ubuntu 24.04
 # С ЛОКАЛЬНЫМ ХРАНИЛИЩЕМ ФАЙЛОВ (без S3)
+# С АВТОЗАГРУЗКОЙ ПОРТФОЛИО И УЛУЧШЕННЫМ ЛОГИРОВАНИЕМ
 ###############################################################################
 
 set -e  # Остановка при ошибке
@@ -12,19 +13,46 @@ set -e  # Остановка при ошибке
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
+
+# Файл логов
+LOG_FILE="/root/yolonaiils_deploy.log"
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+echo "=== Начало развертывания: $(date) ===" >> "$LOG_FILE"
 
 # Функция для вывода сообщений
 log_info() {
     echo -e "${GREEN}[INFO]${NC} $1"
+    echo "[INFO] $(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
 }
 
 log_warning() {
     echo -e "${YELLOW}[WARNING]${NC} $1"
+    echo "[WARNING] $(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
 }
 
 log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
+    echo "[ERROR] $(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
+}
+
+log_debug() {
+    echo -e "${BLUE}[DEBUG]${NC} $1"
+    echo "[DEBUG] $(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
+}
+
+# Функция для проверки успешности команды
+check_success() {
+    if [ $? -eq 0 ]; then
+        log_info "$1 ✓"
+    else
+        log_error "$1 ✗"
+        log_error "Последние 20 строк лога:"
+        tail -20 "$LOG_FILE"
+        exit 1
+    fi
 }
 
 # Приветствие
@@ -32,7 +60,10 @@ clear
 echo "================================================"
 echo "   YOLO NAIILS - Скрипт развертывания на VPS"
 echo "   С локальным хранилищем файлов"
+echo "   Версия 2.0 с автозагрузкой портфолио"
 echo "================================================"
+echo ""
+log_info "Логи сохраняются в: $LOG_FILE"
 echo ""
 
 ###############################################################################
@@ -85,6 +116,7 @@ echo "Пароль БД: $DB_PASSWORD"
 echo "Telegram Bot: ${TG_TOKEN:0:20}..."
 echo "Telegram Chat ID: $TG_CHAT"
 echo "Хранилище: ЛОКАЛЬНОЕ (на VPS)"
+echo "Портфолио: АВТОЗАГРУЗКА с poehali.dev"
 echo "================================================"
 echo ""
 
@@ -99,30 +131,44 @@ fi
 ###############################################################################
 
 log_info "Шаг 2: Обновление системы и установка ПО"
-apt update
-apt upgrade -y
+apt update >> "$LOG_FILE" 2>&1
+check_success "Обновление списка пакетов"
+
+apt upgrade -y >> "$LOG_FILE" 2>&1
+check_success "Обновление пакетов"
 
 log_info "Установка Node.js 20..."
-curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-apt install -y nodejs
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash - >> "$LOG_FILE" 2>&1
+check_success "Добавление репозитория Node.js"
+
+apt install -y nodejs >> "$LOG_FILE" 2>&1
+check_success "Установка Node.js"
+log_debug "Node.js версия: $(node --version)"
 
 log_info "Установка Nginx..."
-apt install -y nginx
+apt install -y nginx >> "$LOG_FILE" 2>&1
+check_success "Установка Nginx"
 
 log_info "Установка PostgreSQL..."
-apt install -y postgresql postgresql-contrib
+apt install -y postgresql postgresql-contrib >> "$LOG_FILE" 2>&1
+check_success "Установка PostgreSQL"
 
 log_info "Установка Python и зависимостей..."
-apt install -y python3 python3-pip python3-venv
+apt install -y python3 python3-pip python3-venv >> "$LOG_FILE" 2>&1
+check_success "Установка Python"
+log_debug "Python версия: $(python3 --version)"
 
 log_info "Установка PM2..."
-npm install -g pm2
+npm install -g pm2 >> "$LOG_FILE" 2>&1
+check_success "Установка PM2"
 
 log_info "Установка Certbot..."
-apt install -y certbot python3-certbot-nginx
+apt install -y certbot python3-certbot-nginx >> "$LOG_FILE" 2>&1
+check_success "Установка Certbot"
 
 log_info "Установка дополнительных утилит..."
-apt install -y git curl wget unzip
+apt install -y git curl wget unzip >> "$LOG_FILE" 2>&1
+check_success "Установка утилит"
 
 log_info "Все пакеты установлены успешно ✓"
 echo ""
@@ -133,7 +179,7 @@ echo ""
 
 log_info "Шаг 3: Настройка базы данных PostgreSQL"
 
-sudo -u postgres psql <<EOF
+sudo -u postgres psql >> "$LOG_FILE" 2>&1 <<EOF
 CREATE DATABASE $DB_NAME;
 CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';
 GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;
@@ -149,13 +195,8 @@ log_info "База данных создана и настроена ✓"
 
 # Проверка подключения
 DATABASE_URL="postgresql://$DB_USER:$DB_PASSWORD@localhost:5432/$DB_NAME"
-psql "$DATABASE_URL" -c "SELECT version();" > /dev/null 2>&1
-if [ $? -eq 0 ]; then
-    log_info "Подключение к БД проверено ✓"
-else
-    log_error "Ошибка подключения к БД"
-    exit 1
-fi
+psql "$DATABASE_URL" -c "SELECT version();" >> "$LOG_FILE" 2>&1
+check_success "Проверка подключения к БД"
 echo ""
 
 ###############################################################################
@@ -167,6 +208,7 @@ log_info "Шаг 4: Создание локального хранилища ф�
 mkdir -p /var/www/yolonaiils_storage/uploads
 mkdir -p /var/www/yolonaiils_storage/receipts
 mkdir -p /var/www/yolonaiils_storage/references
+mkdir -p /var/www/yolonaiils_storage/portfolio
 
 chown -R www-data:www-data /var/www/yolonaiils_storage
 chmod -R 755 /var/www/yolonaiils_storage
@@ -175,6 +217,7 @@ log_info "Папки для хранения созданы ✓"
 log_info "  - /var/www/yolonaiils_storage/uploads (фото клиентов)"
 log_info "  - /var/www/yolonaiils_storage/receipts (чеки оплаты)"
 log_info "  - /var/www/yolonaiils_storage/references (референсы)"
+log_info "  - /var/www/yolonaiils_storage/portfolio (портфолио)"
 echo ""
 
 ###############################################################################
@@ -189,7 +232,8 @@ if [ -d "/var/www/yolonaiils" ]; then
 fi
 
 cd /var/www
-git clone $GITHUB_REPO yolonaiils
+git clone $GITHUB_REPO yolonaiils >> "$LOG_FILE" 2>&1
+check_success "Клонирование репозитория"
 
 if [ ! -d "/var/www/yolonaiils" ]; then
     log_error "Не удалось клонировать репозиторий"
@@ -200,18 +244,104 @@ log_info "Проект клонирован ✓"
 echo ""
 
 ###############################################################################
-# БЛОК 6: Применение миграций БД
+# БЛОК 6: Загрузка портфолио с poehali.dev
 ###############################################################################
 
-log_info "Шаг 6: Применение миграций базы данных"
+log_info "Шаг 6: Загрузка портфолио с poehali.dev"
+
+# Список всех фото из портфолио
+PORTFOLIO_URLS=(
+    "https://cdn.poehali.dev/files/photo_2025-12-27_00-41-42 (2).jpg"
+    "https://cdn.poehali.dev/files/photo_2025-12-27_00-41-42.jpg"
+    "https://cdn.poehali.dev/files/photo_2025-12-27_00-41-43.jpg"
+    "https://cdn.poehali.dev/files/photo_2025-12-27_00-41-44 (2).jpg"
+    "https://cdn.poehali.dev/files/photo_2025-12-27_00-41-44.jpg"
+    "https://cdn.poehali.dev/files/photo_2025-12-27_00-41-46.jpg"
+    "https://cdn.poehali.dev/files/photo_2025-12-27_00-41-47 (2).jpg"
+    "https://cdn.poehali.dev/files/photo_2025-12-27_00-41-47.jpg"
+    "https://cdn.poehali.dev/files/photo_2025-12-27_00-41-48 (2).jpg"
+    "https://cdn.poehali.dev/files/photo_2025-12-27_00-41-48.jpg"
+    "https://cdn.poehali.dev/files/photo_2025-12-27_00-41-49.jpg"
+    "https://cdn.poehali.dev/files/photo_2025-12-27_00-41-51.jpg"
+    "https://cdn.poehali.dev/files/photo_2025-12-27_00-41-52.jpg"
+    "https://cdn.poehali.dev/files/photo_2025-12-27_00-41-53 (2).jpg"
+    "https://cdn.poehali.dev/files/photo_2025-12-27_00-41-53.jpg"
+)
+
+cd /var/www/yolonaiils_storage/portfolio
+
+DOWNLOAD_COUNT=0
+FAILED_COUNT=0
+
+for i in "${!PORTFOLIO_URLS[@]}"; do
+    url="${PORTFOLIO_URLS[$i]}"
+    filename="portfolio_$(printf "%02d" $((i+1))).jpg"
+    
+    log_debug "Загрузка: $filename"
+    if wget -q -O "$filename" "$url" 2>> "$LOG_FILE"; then
+        DOWNLOAD_COUNT=$((DOWNLOAD_COUNT + 1))
+        log_debug "  ✓ $filename загружен"
+    else
+        FAILED_COUNT=$((FAILED_COUNT + 1))
+        log_warning "  ✗ Не удалось загрузить $filename"
+    fi
+done
+
+log_info "Портфолио загружено: $DOWNLOAD_COUNT из ${#PORTFOLIO_URLS[@]} фото ✓"
+if [ $FAILED_COUNT -gt 0 ]; then
+    log_warning "Не удалось загрузить $FAILED_COUNT фото"
+fi
+
+# Установка прав доступа
+chown -R www-data:www-data /var/www/yolonaiils_storage/portfolio
+chmod -R 755 /var/www/yolonaiils_storage/portfolio
+
+echo ""
+
+###############################################################################
+# БЛОК 7: Обновление URL портфолио в коде
+###############################################################################
+
+log_info "Шаг 7: Обновление URL портфолио на локальные"
+
+INDEX_TSX="/var/www/yolonaiils/src/pages/Index.tsx"
+
+if [ -f "$INDEX_TSX" ]; then
+    log_debug "Замена URL портфолио в Index.tsx"
+    
+    # Создаём резервную копию
+    cp "$INDEX_TSX" "$INDEX_TSX.backup"
+    
+    # Заменяем URL портфолио
+    for i in {1..15}; do
+        old_url_pattern="https://cdn.poehali.dev/files/photo_2025-12-27_00-41-"
+        new_url="http://$SERVER_IP/storage/portfolio/portfolio_$(printf "%02d" $i).jpg"
+        
+        # Используем более безопасную замену через sed
+        sed -i "0,/$old_url_pattern/{s|https://cdn.poehali.dev/files/photo_2025-12-27_00-41-[^'\"]*|$new_url|}" "$INDEX_TSX"
+    done
+    
+    log_info "URL портфолио обновлены на локальные ✓"
+else
+    log_warning "Файл Index.tsx не найден, пропускаем обновление URL"
+fi
+
+echo ""
+
+###############################################################################
+# БЛОК 8: Применение миграций БД
+###############################################################################
+
+log_info "Шаг 8: Применение миграций базы данных"
 
 cd /var/www/yolonaiils
 
 if [ -d "db_migrations" ]; then
     for migration in db_migrations/*.sql; do
         if [ -f "$migration" ]; then
-            log_info "Применение миграции: $migration"
-            psql "$DATABASE_URL" -f "$migration"
+            log_info "Применение миграции: $(basename $migration)"
+            psql "$DATABASE_URL" -f "$migration" >> "$LOG_FILE" 2>&1
+            check_success "Миграция $(basename $migration)"
         fi
     done
     log_info "Миграции применены ✓"
@@ -221,10 +351,10 @@ fi
 echo ""
 
 ###############################################################################
-# БЛОК 7: Создание .env файла
+# БЛОК 9: Создание .env файла
 ###############################################################################
 
-log_info "Шаг 7: Создание файла переменных окружения"
+log_info "Шаг 9: Создание файла переменных окружения"
 
 cat > /var/www/yolonaiils/.env <<EOF
 # База данных
@@ -245,10 +375,10 @@ log_info "Файл .env создан и защищен ✓"
 echo ""
 
 ###############################################################################
-# БЛОК 8: Обновление бэкенда для локального хранилища
+# БЛОК 10: Обновление бэкенда для локального хранилища
 ###############################################################################
 
-log_info "Шаг 8: Обновление бэкенда для работы с локальным хранилищем"
+log_info "Шаг 10: Обновление бэкенда для работы с локальным хранилищем"
 
 # Создаём утилиту для сохранения файлов
 cat > /var/www/yolonaiils/backend/storage_utils.py <<'PYEOF'
@@ -312,9 +442,8 @@ PYEOF
 
 log_info "Утилита storage_utils.py создана ✓"
 
-# Обновляем bookings/index.py для использования локального хранилища
+# Обновляем bookings/index.py
 cat > /var/www/yolonaiils/backend/bookings_storage_patch.py <<'PYEOF'
-# Патч для замены S3 на локальное хранилище в bookings/index.py
 import sys
 import os
 
@@ -324,9 +453,7 @@ if os.path.exists(bookings_file):
     with open(bookings_file, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    # Добавляем импорт storage_utils
     if 'from storage_utils import' not in content:
-        # Находим секцию импортов
         import_line = 'import json'
         if import_line in content:
             content = content.replace(
@@ -334,26 +461,19 @@ if os.path.exists(bookings_file):
                 import_line + '\nsys.path.insert(0, "/var/www/yolonaiils/backend")\nfrom storage_utils import save_multiple_images, save_base64_image'
             )
     
-    # Заменяем загрузку в S3 на локальное сохранение
-    # Ищем секцию с boto3 и заменяем
     if 'boto3' in content or 's3.put_object' in content:
-        # Убираем импорт boto3
         content = content.replace('import boto3', '# import boto3  # Заменено на локальное хранилище')
-        
-        # Заменяем сохранение фото референсов
         content = content.replace(
             'photo_urls = []',
             'photo_urls = save_multiple_images(photos, folder="references") if photos else []'
         )
         
-        # Убираем циклы загрузки в S3
         lines = content.split('\n')
         new_lines = []
         skip_until_dedent = False
         indent_level = 0
         
         for line in lines:
-            # Пропускаем блоки с s3.put_object
             if 's3.put_object' in line or 's3 = boto3.client' in line:
                 skip_until_dedent = True
                 indent_level = len(line) - len(line.lstrip())
@@ -370,7 +490,6 @@ if os.path.exists(bookings_file):
         
         content = '\n'.join(new_lines)
     
-    # Сохраняем обновлённый файл
     with open(bookings_file, 'w', encoding='utf-8') as f:
         f.write(content)
     
@@ -379,10 +498,11 @@ else:
     print("⚠ bookings/index.py не найден")
 PYEOF
 
-python3 /var/www/yolonaiils/backend/bookings_storage_patch.py
+python3 /var/www/yolonaiils/backend/bookings_storage_patch.py >> "$LOG_FILE" 2>&1
+check_success "Обновление bookings/index.py"
 rm /var/www/yolonaiils/backend/bookings_storage_patch.py
 
-# Аналогично для payment/index.py
+# Обновляем payment/index.py
 cat > /var/www/yolonaiils/backend/payment_storage_patch.py <<'PYEOF'
 import sys
 import os
@@ -393,7 +513,6 @@ if os.path.exists(payment_file):
     with open(payment_file, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    # Добавляем импорт storage_utils
     if 'from storage_utils import' not in content:
         import_line = 'import json'
         if import_line in content:
@@ -402,17 +521,13 @@ if os.path.exists(payment_file):
                 import_line + '\nsys.path.insert(0, "/var/www/yolonaiils/backend")\nfrom storage_utils import save_base64_image'
             )
     
-    # Заменяем загрузку чеков
     if 'boto3' in content:
         content = content.replace('import boto3', '# import boto3  # Заменено на локальное хранилище')
-        
-        # Заменяем сохранение чека
         content = content.replace(
             'receipt_saved_url = ""',
             'receipt_saved_url = save_base64_image(receipt_url, folder="receipts") if receipt_url else ""'
         )
         
-        # Убираем блоки с s3
         lines = content.split('\n')
         new_lines = []
         skip_until_dedent = False
@@ -443,21 +558,21 @@ else:
     print("⚠ payment/index.py не найден")
 PYEOF
 
-python3 /var/www/yolonaiils/backend/payment_storage_patch.py
+python3 /var/www/yolonaiils/backend/payment_storage_patch.py >> "$LOG_FILE" 2>&1
+check_success "Обновление payment/index.py"
 rm /var/www/yolonaiils/backend/payment_storage_patch.py
 
 log_info "Бэкенд обновлён для локального хранилища ✓"
 echo ""
 
 ###############################################################################
-# БЛОК 9: Обновление URL в фронтенде
+# БЛОК 11: Обновление URL в фронтенде
 ###############################################################################
 
-log_info "Шаг 9: Обновление URL бэкенда в коде"
+log_info "Шаг 11: Обновление URL бэкенда в коде"
 
 cd /var/www/yolonaiils
 
-# Замена URL в Index.tsx
 if [ -f "src/pages/Index.tsx" ]; then
     sed -i 's|https://functions\.poehali\.dev/9689b825-c9ac-49db-b85b-f1310460470d|/api/slots|g' src/pages/Index.tsx
     sed -i 's|https://functions\.poehali\.dev/406a4a18-71da-46ec-a8a4-efc9c7c87810|/api/bookings|g' src/pages/Index.tsx
@@ -465,7 +580,6 @@ if [ -f "src/pages/Index.tsx" ]; then
     log_info "URL в Index.tsx обновлены ✓"
 fi
 
-# Замена URL в Admin.tsx и компонентах
 if [ -f "src/pages/Admin.tsx" ]; then
     sed -i 's|https://functions\.poehali\.dev/[a-f0-9-]*|/api|g' src/pages/Admin.tsx
 fi
@@ -478,14 +592,17 @@ log_info "URL обновлены ✓"
 echo ""
 
 ###############################################################################
-# БЛОК 10: Сборка фронтенда
+# БЛОК 12: Сборка фронтенда
 ###############################################################################
 
-log_info "Шаг 10: Установка зависимостей и сборка фронтенда"
+log_info "Шаг 12: Установка зависимостей и сборка фронтенда"
 
 cd /var/www/yolonaiils
-npm install
-npm run build
+npm install >> "$LOG_FILE" 2>&1
+check_success "Установка npm зависимостей"
+
+npm run build >> "$LOG_FILE" 2>&1
+check_success "Сборка фронтенда"
 
 if [ ! -d "dist" ]; then
     log_error "Ошибка сборки фронтенда (папка dist не создана)"
@@ -496,20 +613,23 @@ log_info "Фронтенд собран ✓"
 echo ""
 
 ###############################################################################
-# БЛОК 11: Настройка API сервера
+# БЛОК 13: Настройка API сервера
 ###############################################################################
 
-log_info "Шаг 11: Настройка Python API сервера"
+log_info "Шаг 13: Настройка Python API сервера"
 
 cd /var/www/yolonaiils
 mkdir -p api_server
 cd api_server
 
-python3 -m venv venv
+python3 -m venv venv >> "$LOG_FILE" 2>&1
+check_success "Создание виртуального окружения Python"
+
 source venv/bin/activate
 
-pip install --upgrade pip
-pip install fastapi uvicorn psycopg2-binary pydantic python-multipart python-dotenv
+pip install --upgrade pip >> "$LOG_FILE" 2>&1
+pip install fastapi uvicorn psycopg2-binary pydantic python-multipart python-dotenv >> "$LOG_FILE" 2>&1
+check_success "Установка Python зависимостей"
 
 cat > main.py <<'PYEOF'
 import os
@@ -600,40 +720,48 @@ log_info "API сервер настроен ✓"
 echo ""
 
 ###############################################################################
-# БЛОК 12: Запуск API через PM2
+# БЛОК 14: Запуск API через PM2
 ###############################################################################
 
-log_info "Шаг 12: Запуск API через PM2"
+log_info "Шаг 14: Запуск API через PM2"
 
 cd /var/www/yolonaiils/api_server
 
 pm2 delete yolonaiils-api 2>/dev/null || true
-pm2 start "venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000" --name yolonaiils-api
-pm2 save
+pm2 start "venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000" --name yolonaiils-api >> "$LOG_FILE" 2>&1
+check_success "Запуск PM2 процесса"
+
+pm2 save >> "$LOG_FILE" 2>&1
+check_success "Сохранение списка PM2 процессов"
 
 # Настройка автозапуска PM2
-STARTUP_COMMAND=$(pm2 startup systemd -u root --hp /root | grep 'sudo')
+STARTUP_COMMAND=$(pm2 startup systemd -u root --hp /root 2>/dev/null | grep 'sudo' | head -1)
 if [ -n "$STARTUP_COMMAND" ]; then
-    eval "$STARTUP_COMMAND"
+    log_debug "Выполнение команды автозапуска PM2"
+    eval "$STARTUP_COMMAND" >> "$LOG_FILE" 2>&1
+    check_success "Настройка автозапуска PM2"
+else
+    log_warning "Не удалось получить команду автозапуска PM2"
 fi
 
 log_info "API сервер запущен ✓"
-sleep 3
+sleep 5
 
+# Проверка API
 if curl -s http://localhost:8000/health | grep -q "healthy"; then
     log_info "API работает корректно ✓"
 else
-    log_error "API не отвечает"
-    pm2 logs yolonaiils-api --lines 20
+    log_error "API не отвечает, проверяем логи:"
+    pm2 logs yolonaiils-api --lines 30 --nostream
     exit 1
 fi
 echo ""
 
 ###############################################################################
-# БЛОК 13: Настройка Nginx
+# БЛОК 15: Настройка Nginx
 ###############################################################################
 
-log_info "Шаг 13: Настройка Nginx"
+log_info "Шаг 15: Настройка Nginx"
 
 cat > /etc/nginx/sites-available/yolonaiils <<NGINXEOF
 server {
@@ -684,24 +812,25 @@ server {
 }
 NGINXEOF
 
+check_success "Создание конфигурации Nginx"
+
 ln -sf /etc/nginx/sites-available/yolonaiils /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 
-nginx -t
-if [ $? -ne 0 ]; then
-    log_error "Ошибка в конфигурации Nginx"
-    exit 1
-fi
+nginx -t >> "$LOG_FILE" 2>&1
+check_success "Проверка конфигурации Nginx"
 
-systemctl restart nginx
+systemctl restart nginx >> "$LOG_FILE" 2>&1
+check_success "Перезапуск Nginx"
+
 log_info "Nginx настроен и перезапущен ✓"
 echo ""
 
 ###############################################################################
-# БЛОК 14: Финальная проверка
+# БЛОК 16: Финальная проверка
 ###############################################################################
 
-log_info "Шаг 14: Финальная проверка установки"
+log_info "Шаг 16: Финальная проверка установки"
 
 echo ""
 echo "================================================"
@@ -744,11 +873,18 @@ else
     echo -e "${RED}✗${NC} Локальное хранилище: ошибка"
 fi
 
+PORTFOLIO_COUNT=$(ls -1 /var/www/yolonaiils_storage/portfolio/*.jpg 2>/dev/null | wc -l)
+if [ $PORTFOLIO_COUNT -gt 0 ]; then
+    echo -e "${GREEN}✓${NC} Портфолио: загружено $PORTFOLIO_COUNT фото"
+else
+    echo -e "${RED}✗${NC} Портфолио: фото не найдены"
+fi
+
 echo "================================================"
 echo ""
 
 ###############################################################################
-# БЛОК 15: Итоговая информация
+# БЛОК 17: Итоговая информация
 ###############################################################################
 
 log_info "УСТАНОВКА ЗАВЕРШЕНА!"
@@ -773,8 +909,10 @@ echo "📁 ПУТИ:"
 echo "   Проект: /var/www/yolonaiils"
 echo "   Хранилище: /var/www/yolonaiils_storage"
 echo "   .env файл: /var/www/yolonaiils/.env"
+echo "   Логи: $LOG_FILE"
 echo ""
 echo "🗂️ ЛОКАЛЬНОЕ ХРАНИЛИЩЕ:"
+echo "   Портфолио: /var/www/yolonaiils_storage/portfolio ($PORTFOLIO_COUNT фото)"
 echo "   Референсы: /var/www/yolonaiils_storage/references"
 echo "   Чеки: /var/www/yolonaiils_storage/receipts"
 echo "   Uploads: /var/www/yolonaiils_storage/uploads"
@@ -790,8 +928,14 @@ echo ""
 echo "# Перезапуск API:"
 echo "pm2 restart yolonaiils-api"
 echo ""
+echo "# Просмотр логов развертывания:"
+echo "tail -f $LOG_FILE"
+echo ""
+echo "# Просмотр логов Nginx:"
+echo "tail -f /var/log/nginx/yolonaiils_error.log"
+echo ""
 echo "# Просмотр загруженных файлов:"
-echo "ls -lah /var/www/yolonaiils_storage/receipts"
+echo "ls -lah /var/www/yolonaiils_storage/portfolio"
 echo ""
 echo "# Очистка старых файлов (старше 90 дней):"
 echo "find /var/www/yolonaiils_storage -type f -mtime +90 -delete"
@@ -825,6 +969,7 @@ IP сервера: $SERVER_IP
   Тип: ЛОКАЛЬНОЕ (на VPS)
   Путь: /var/www/yolonaiils_storage
   URL: http://$SERVER_IP/storage/
+  Портфолио: $PORTFOLIO_COUNT фото загружено
 
 Telegram:
   Bot Token: $TG_TOKEN
@@ -834,13 +979,17 @@ Telegram:
   Проект: /var/www/yolonaiils
   Хранилище: /var/www/yolonaiils_storage
   .env файл: /var/www/yolonaiils/.env
+  Логи: $LOG_FILE
 
 Команды:
   Логи API: pm2 logs yolonaiils-api
   Перезапуск: pm2 restart yolonaiils-api
   Файлы: ls -lah /var/www/yolonaiils_storage/
+  Логи деплоя: tail -f $LOG_FILE
 EOF
 
 log_info "Информация сохранена в /root/yolonaiils_install_info.txt"
 echo ""
+
 log_info "Всё готово! 🚀"
+echo "=== Завершение развертывания: $(date) ===" >> "$LOG_FILE"
