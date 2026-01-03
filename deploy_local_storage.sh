@@ -137,38 +137,62 @@ check_success "Обновление списка пакетов"
 apt upgrade -y >> "$LOG_FILE" 2>&1
 check_success "Обновление пакетов"
 
-log_info "Установка Node.js 20..."
-curl -fsSL https://deb.nodesource.com/setup_20.x | bash - >> "$LOG_FILE" 2>&1
-check_success "Добавление репозитория Node.js"
-
-apt install -y nodejs >> "$LOG_FILE" 2>&1
-check_success "Установка Node.js"
+log_info "Проверка Node.js 20..."
+if ! command -v node &> /dev/null; then
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - >> "$LOG_FILE" 2>&1
+    check_success "Добавление репозитория Node.js"
+    
+    apt install -y nodejs >> "$LOG_FILE" 2>&1
+    check_success "Установка Node.js"
+else
+    log_info "Node.js уже установлен ✓"
+fi
 log_debug "Node.js версия: $(node --version)"
 
-log_info "Установка Nginx..."
-apt install -y nginx >> "$LOG_FILE" 2>&1
-check_success "Установка Nginx"
+log_info "Проверка Nginx..."
+if ! command -v nginx &> /dev/null; then
+    apt install -y nginx >> "$LOG_FILE" 2>&1
+    check_success "Установка Nginx"
+else
+    log_info "Nginx уже установлен ✓"
+fi
 
-log_info "Установка PostgreSQL..."
-apt install -y postgresql postgresql-contrib >> "$LOG_FILE" 2>&1
-check_success "Установка PostgreSQL"
+log_info "Проверка PostgreSQL..."
+if ! command -v psql &> /dev/null; then
+    apt install -y postgresql postgresql-contrib >> "$LOG_FILE" 2>&1
+    check_success "Установка PostgreSQL"
+else
+    log_info "PostgreSQL уже установлен ✓"
+fi
 
-log_info "Установка Python и зависимостей..."
-apt install -y python3 python3-pip python3-venv >> "$LOG_FILE" 2>&1
-check_success "Установка Python"
+log_info "Проверка Python..."
+if ! command -v python3 &> /dev/null; then
+    apt install -y python3 python3-pip python3-venv >> "$LOG_FILE" 2>&1
+    check_success "Установка Python"
+else
+    log_info "Python уже установлен ✓"
+fi
 log_debug "Python версия: $(python3 --version)"
 
-log_info "Установка PM2..."
-npm install -g pm2 >> "$LOG_FILE" 2>&1
-check_success "Установка PM2"
+log_info "Проверка PM2..."
+if ! command -v pm2 &> /dev/null; then
+    npm install -g pm2 >> "$LOG_FILE" 2>&1
+    check_success "Установка PM2"
+else
+    log_info "PM2 уже установлен ✓"
+fi
 
-log_info "Установка Certbot..."
-apt install -y certbot python3-certbot-nginx >> "$LOG_FILE" 2>&1
-check_success "Установка Certbot"
+log_info "Проверка Certbot..."
+if ! command -v certbot &> /dev/null; then
+    apt install -y certbot python3-certbot-nginx >> "$LOG_FILE" 2>&1
+    check_success "Установка Certbot"
+else
+    log_info "Certbot уже установлен ✓"
+fi
 
-log_info "Установка дополнительных утилит..."
+log_info "Проверка дополнительных утилит..."
 apt install -y git curl wget unzip >> "$LOG_FILE" 2>&1
-check_success "Установка утилит"
+check_success "Проверка утилит"
 
 log_info "Все пакеты установлены успешно ✓"
 echo ""
