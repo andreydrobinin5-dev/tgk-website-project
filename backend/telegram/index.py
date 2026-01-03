@@ -3,7 +3,7 @@ import os
 import psycopg2
 import requests
 import base64
-import boto3
+from datetime import datetime
 
 SECURITY_HEADERS = {
     'X-Frame-Options': 'DENY',
@@ -55,21 +55,23 @@ def handler(event: dict, context) -> dict:
             
             receipt_bytes = base64.b64decode(receipt_base64)
             
-            s3 = boto3.client('s3',
-                endpoint_url='https://bucket.poehali.dev',
-                aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-                aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY']
-            )
+            # Локальное хранилище
+            storage_path = os.environ.get('STORAGE_PATH', '/var/www/yolonaiils_storage')
+            storage_url = os.environ.get('STORAGE_URL', 'http://localhost/storage')
             
-            file_key = f'receipts/{booking_id}/receipt.jpg'
-            s3.put_object(
-                Bucket='files',
-                Key=file_key,
-                Body=receipt_bytes,
-                ContentType='image/jpeg'
-            )
+            receipts_folder = os.path.join(storage_path, 'receipts')
+            os.makedirs(receipts_folder, exist_ok=True)
             
-            receipt_cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{file_key}"
+            # Сохраняем файл
+            receipt_filename = f'receipt_{booking_id}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.jpg'
+            receipt_path = os.path.join(receipts_folder, receipt_filename)
+            
+            with open(receipt_path, 'wb') as f:
+                f.write(receipt_bytes)
+            
+            os.chmod(receipt_path, 0o644)
+            
+            receipt_cdn_url = f"{storage_url}/receipts/{receipt_filename}"
         
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()

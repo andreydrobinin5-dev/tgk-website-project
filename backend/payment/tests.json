@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Test payment confirmation",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "booking_id": 1,
+        "receipt_url": "data:image/jpeg;base64,/9j/4AAQSkZJRg=="
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "booking_id": 1
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
