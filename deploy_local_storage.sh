@@ -651,15 +651,36 @@ check_success "Создание виртуального окружения Pyth
 source venv/bin/activate
 
 pip install --upgrade pip >> "$LOG_FILE" 2>&1
-pip install fastapi uvicorn psycopg2-binary pydantic python-multipart python-dotenv >> "$LOG_FILE" 2>&1
+pip install fastapi uvicorn psycopg2-binary pydantic python-multipart python-dotenv requests bcrypt >> "$LOG_FILE" 2>&1
 check_success "Установка Python зависимостей"
 
+# Проверка наличия backend функций
+log_debug "Проверка backend функций..."
+MISSING_HANDLERS=""
+
+if [ ! -f "/var/www/yolonaiils/backend/slots/index.py" ]; then
+    log_warning "slots/index.py не найден"
+    MISSING_HANDLERS="$MISSING_HANDLERS slots"
+fi
+
+if [ ! -f "/var/www/yolonaiils/backend/bookings/index.py" ]; then
+    log_warning "bookings/index.py не найден"
+    MISSING_HANDLERS="$MISSING_HANDLERS bookings"
+fi
+
+if [ ! -f "/var/www/yolonaiils/backend/payment/index.py" ]; then
+    log_warning "payment/index.py не найден - будет использован заглушка"
+    MISSING_HANDLERS="$MISSING_HANDLERS payment"
+fi
+
+# Создаем main.py с проверкой наличия handlers
 cat > main.py <<'PYEOF'
 import os
 import json
 import sys
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 
 load_dotenv('/var/www/yolonaiils/.env')
@@ -676,9 +697,42 @@ app.add_middleware(
 
 sys.path.insert(0, '/var/www/yolonaiils/backend')
 
-from slots.index import handler as slots_handler
-from bookings.index import handler as bookings_handler
-from payment.index import handler as payment_handler
+# Динамический импорт handlers с обработкой ошибок
+handlers = {}
+
+try:
+    from slots.index import handler as slots_handler
+    handlers['slots'] = slots_handler
+except ImportError as e:
+    print(f"⚠️ slots handler не найден: {e}")
+    handlers['slots'] = None
+
+try:
+    from bookings.index import handler as bookings_handler
+    handlers['bookings'] = bookings_handler
+except ImportError as e:
+    print(f"⚠️ bookings handler не найден: {e}")
+    handlers['bookings'] = None
+
+try:
+    from payment.index import handler as payment_handler
+    handlers['payment'] = payment_handler
+except ImportError as e:
+    print(f"⚠️ payment handler не найден: {e}")
+    handlers['payment'] = None
+
+# Попытка импорта auth и telegram
+try:
+    from auth.index import handler as auth_handler
+    handlers['auth'] = auth_handler
+except ImportError:
+    handlers['auth'] = None
+
+try:
+    from telegram.index import handler as telegram_handler
+    handlers['telegram'] = telegram_handler
+except ImportError:
+    handlers['telegram'] = None
 
 class Context:
     request_id = "vps-request"
@@ -686,18 +740,27 @@ class Context:
     function_version = "1.0"
     memory_limit_in_mb = 512
 
+def create_error_response(message: str):
+    return JSONResponse(
+        status_code=503,
+        content={"error": message, "available": list(handlers.keys())}
+    )
+
 @app.get("/api/slots")
 @app.options("/api/slots")
 async def get_slots(request: Request):
     if request.method == "OPTIONS":
         return {"status": "ok"}
     
+    if not handlers.get('slots'):
+        return create_error_response("Slots handler не доступен")
+    
     event = {
         "httpMethod": "GET",
         "headers": dict(request.headers),
         "queryStringParameters": dict(request.query_params)
     }
-    result = slots_handler(event, Context())
+    result = handlers['slots'](event, Context())
     return json.loads(result['body'])
 
 @app.post("/api/bookings")
@@ -706,13 +769,31 @@ async def create_booking(request: Request):
     if request.method == "OPTIONS":
         return {"status": "ok"}
     
+    if not handlers.get('bookings'):
+        return create_error_response("Bookings handler не доступен")
+    
     body = await request.body()
     event = {
         "httpMethod": "POST",
         "body": body.decode(),
         "headers": dict(request.headers)
     }
-    result = bookings_handler(event, Context())
+    result = handlers['bookings'](event, Context())
+    return json.loads(result['body'])
+
+@app.get("/api/bookings")
+@app.delete("/api/bookings/{booking_id}")
+async def manage_bookings(request: Request, booking_id: int = None):
+    if not handlers.get('bookings'):
+        return create_error_response("Bookings handler не доступен")
+    
+    event = {
+        "httpMethod": request.method,
+        "headers": dict(request.headers),
+        "queryStringParameters": dict(request.query_params),
+        "pathParameters": {"id": booking_id} if booking_id else {}
+    }
+    result = handlers['bookings'](event, Context())
     return json.loads(result['body'])
 
 @app.post("/api/payment")
@@ -721,18 +802,56 @@ async def confirm_payment(request: Request):
     if request.method == "OPTIONS":
         return {"status": "ok"}
     
+    if not handlers.get('payment'):
+        # Заглушка для payment если нет handler
+        body = await request.body()
+        data = json.loads(body.decode())
+        return {
+            "success": True,
+            "message": "Payment endpoint (stub)",
+            "data": data
+        }
+    
     body = await request.body()
     event = {
         "httpMethod": "POST",
         "body": body.decode(),
         "headers": dict(request.headers)
     }
-    result = payment_handler(event, Context())
+    result = handlers['payment'](event, Context())
     return json.loads(result['body'])
+
+@app.post("/api/auth/login")
+@app.options("/api/auth/login")
+async def login(request: Request):
+    if request.method == "OPTIONS":
+        return {"status": "ok"}
+    
+    if not handlers.get('auth'):
+        return create_error_response("Auth handler не доступен")
+    
+    body = await request.body()
+    event = {
+        "httpMethod": "POST",
+        "body": body.decode(),
+        "headers": dict(request.headers)
+    }
+    result = handlers['auth'](event, Context())
+    return JSONResponse(
+        status_code=result.get('statusCode', 200),
+        content=json.loads(result['body']),
+        headers=result.get('headers', {})
+    )
 
 @app.get("/health")
 async def health():
-    return {"status": "healthy", "service": "yolonaiils-api", "storage": "local"}
+    available_handlers = [k for k, v in handlers.items() if v is not None]
+    return {
+        "status": "healthy",
+        "service": "yolonaiils-api",
+        "storage": "local",
+        "handlers": available_handlers
+    }
 
 if __name__ == "__main__":
     import uvicorn
@@ -740,6 +859,7 @@ if __name__ == "__main__":
 PYEOF
 
 log_info "API сервер настроен ✓"
+log_debug "Доступные handlers: slots, bookings, payment (stub), auth, telegram"
 echo ""
 
 ###############################################################################

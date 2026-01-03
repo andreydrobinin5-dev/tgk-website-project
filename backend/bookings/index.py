@@ -2,10 +2,16 @@ import json
 import os
 import psycopg2
 import base64
-import boto3
 from datetime import datetime
-from utils import verify_admin_token
-from validation import sanitize_text, validate_contact, validate_booking_type, validate_name
+
+# Относительные импорты для VPS
+try:
+    from bookings.utils import verify_admin_token
+    from bookings.validation import sanitize_text, validate_contact, validate_booking_type, validate_name
+except ImportError:
+    # Fallback для Cloud Functions
+    from utils import verify_admin_token
+    from validation import sanitize_text, validate_contact, validate_booking_type, validate_name
 
 SECURITY_HEADERS = {
     'X-Frame-Options': 'DENY',
@@ -203,11 +209,9 @@ def handler(event: dict, context) -> dict:
             
             booking_id = cur.fetchone()[0]
             
-            s3 = boto3.client('s3',
-                endpoint_url='https://bucket.poehali.dev',
-                aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-                aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY']
-            )
+            # Локальное хранилище вместо S3
+            storage_path = os.environ.get('STORAGE_PATH', '/var/www/yolonaiils_storage')
+            storage_url = os.environ.get('STORAGE_URL', 'http://localhost/storage')
             
             photo_urls = []
             for idx, photo_data in enumerate(photos_base64):
@@ -215,16 +219,23 @@ def handler(event: dict, context) -> dict:
                     photo_data = photo_data.split(',')[1]
                 
                 photo_bytes = base64.b64decode(photo_data)
-                file_key = f'bookings/{booking_id}/photo_{idx}.jpg'
                 
-                s3.put_object(
-                    Bucket='files',
-                    Key=file_key,
-                    Body=photo_bytes,
-                    ContentType='image/jpeg'
-                )
+                # Создаем папку для booking
+                booking_folder = os.path.join(storage_path, 'uploads', f'booking_{booking_id}')
+                os.makedirs(booking_folder, exist_ok=True)
                 
-                photo_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{file_key}"
+                # Сохраняем файл
+                file_name = f'photo_{idx}.jpg'
+                file_path = os.path.join(booking_folder, file_name)
+                
+                with open(file_path, 'wb') as f:
+                    f.write(photo_bytes)
+                
+                # Устанавливаем права доступа
+                os.chmod(file_path, 0o644)
+                
+                # Генерируем URL
+                photo_url = f"{storage_url}/uploads/booking_{booking_id}/{file_name}"
                 photo_urls.append(photo_url)
                 
                 cur.execute("""

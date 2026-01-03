@@ -2,7 +2,13 @@ import json
 import os
 import psycopg2
 from datetime import datetime, date
-from utils import verify_admin_token
+
+# Относительные импорты для VPS
+try:
+    from slots.utils import verify_admin_token
+except ImportError:
+    # Fallback для Cloud Functions
+    from utils import verify_admin_token
 
 SECURITY_HEADERS = {
     'X-Frame-Options': 'DENY',
