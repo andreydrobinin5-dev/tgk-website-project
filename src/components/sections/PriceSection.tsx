@@ -4,7 +4,7 @@ import Icon from '@/components/ui/icon';
 const PriceSection = () => {
   const services = [
     {
-      category: 'ПРАЙС',
+      category: 'НАРАЩИВАНИЕ',
       icon: 'Sparkles',
       items: [
         { name: 'S', price: '1600₽', sizes: '1-2' },
@@ -50,7 +50,6 @@ const PriceSection = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-4 text-foreground">Прайс-лист</h2>
-          <p className="text-muted-foreground">Прозрачные цены на все услуги</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
