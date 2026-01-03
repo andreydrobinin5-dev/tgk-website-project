@@ -285,7 +285,7 @@ const BookingModal = ({
                       {isCompressing ? (
                         <span className="flex items-center gap-2">⏳ Обработка фото...</span>
                       ) : (
-                        <span className="flex items-center gap-2">💳 Продолжить к оплате</span>
+                        <span className="flex items-center gap-2">💳 Продолжить к предоплате</span>
                       )}
                     </Button>
                   </div>
