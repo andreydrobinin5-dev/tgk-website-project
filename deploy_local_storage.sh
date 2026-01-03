@@ -610,7 +610,12 @@ cd /var/www/yolonaiils/api_server
 pm2 delete yolonaiils-api 2>/dev/null || true
 pm2 start "venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000" --name yolonaiils-api
 pm2 save
-pm2 startup | tail -n 1 | bash
+
+# Настройка автозапуска PM2
+STARTUP_COMMAND=$(pm2 startup systemd -u root --hp /root | grep 'sudo')
+if [ -n "$STARTUP_COMMAND" ]; then
+    eval "$STARTUP_COMMAND"
+fi
 
 log_info "API сервер запущен ✓"
 sleep 3
