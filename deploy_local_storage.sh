@@ -489,7 +489,7 @@ if os.path.exists(bookings_file):
         if import_line in content:
             content = content.replace(
                 import_line,
-                import_line + '\nsys.path.insert(0, "/var/www/yolonaiils/backend")\nfrom storage_utils import save_multiple_images, save_base64_image'
+                import_line + '\nimport sys\nsys.path.insert(0, "/var/www/yolonaiils/backend")\nfrom storage_utils import save_multiple_images, save_base64_image'
             )
     
     if 'boto3' in content or 's3.put_object' in content:
@@ -549,7 +549,7 @@ if os.path.exists(payment_file):
         if import_line in content:
             content = content.replace(
                 import_line,
-                import_line + '\nsys.path.insert(0, "/var/www/yolonaiils/backend")\nfrom storage_utils import save_base64_image'
+                import_line + '\nimport sys\nsys.path.insert(0, "/var/www/yolonaiils/backend")\nfrom storage_utils import save_base64_image'
             )
     
     if 'boto3' in content:
