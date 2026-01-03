@@ -42,7 +42,6 @@ const GalleryModal = ({ open, onOpenChange, portfolio }: GalleryModalProps) => {
                       className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                     />
                   </div>
-                  <p className="mt-2 text-xs sm:text-sm font-medium text-muted-foreground text-center">{item.title}</p>
                 </div>
               ))}
             </div>
