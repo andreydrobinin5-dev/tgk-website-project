@@ -338,11 +338,10 @@ if [ -f "$INDEX_TSX" ]; then
     
     # Заменяем URL портфолио
     for i in {1..15}; do
-        old_url_pattern="https://cdn.poehali.dev/files/photo_2025-12-27_00-41-"
         new_url="http://$SERVER_IP/storage/portfolio/portfolio_$(printf "%02d" $i).jpg"
         
-        # Используем более безопасную замену через sed
-        sed -i "0,/$old_url_pattern/{s|https://cdn.poehali.dev/files/photo_2025-12-27_00-41-[^'\"]*|$new_url|}" "$INDEX_TSX"
+        # Используем безопасную замену через sed с разделителем |
+        sed -i "s|https://cdn\.poehali\.dev/files/photo_2025-12-27_00-41-[^'\"]*|$new_url|" "$INDEX_TSX"
     done
     
     log_info "URL портфолио обновлены на локальные ✓"
