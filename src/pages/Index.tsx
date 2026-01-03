@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import HeroSection from '@/components/sections/HeroSection';
 import PortfolioSection from '@/components/sections/PortfolioSection';
+import PriceSection from '@/components/sections/PriceSection';
 import BookingModal from '@/components/sections/BookingModal';
 import GalleryModal from '@/components/sections/GalleryModal';
 import Icon from '@/components/ui/icon';
@@ -365,6 +366,8 @@ const Index = () => {
       />
 
       <PortfolioSection portfolio={portfolio} />
+
+      <PriceSection />
 
       <GalleryModal
         open={galleryModalOpen}
