@@ -36,7 +36,7 @@ const AdminSlots = () => {
 
   const fetchSlots = async () => {
     try {
-      const response = await fetch('https://functions.poehali.dev/9689b825-c9ac-49db-b85b-f1310460470d');
+      const response = await fetch('/api/slots');
       const data = await response.json();
       setSlots(data);
     } catch (error) {
@@ -66,7 +66,7 @@ const AdminSlots = () => {
     try {
       const token = localStorage.getItem('admin_token');
       
-      const response = await fetch('https://functions.poehali.dev/9689b825-c9ac-49db-b85b-f1310460470d', {
+      const response = await fetch('/api/slots', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -108,7 +108,7 @@ const AdminSlots = () => {
   const handleDeleteSlot = async (slotId: number) => {
     try {
       const token = localStorage.getItem('admin_token');
-      const response = await fetch('https://functions.poehali.dev/9689b825-c9ac-49db-b85b-f1310460470d', {
+      const response = await fetch('/api/slots', {
         method: 'DELETE',
         headers: { 
           'Content-Type': 'application/json',
@@ -179,7 +179,7 @@ const AdminSlots = () => {
     try {
       const token = localStorage.getItem('admin_token');
       
-      const response = await fetch('https://functions.poehali.dev/9689b825-c9ac-49db-b85b-f1310460470d', {
+      const response = await fetch('/api/slots', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

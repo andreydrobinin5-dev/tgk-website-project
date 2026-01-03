@@ -46,7 +46,7 @@ const Admin = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://functions.poehali.dev/a6d698fe-c92a-4d08-b994-4fc13e0a8679', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password })
@@ -98,7 +98,7 @@ const Admin = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch('https://functions.poehali.dev/73351d50-e089-4cfe-a1ba-4653268b23d0', {
+      const response = await fetch('/api/cleanup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
