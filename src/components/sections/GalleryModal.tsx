@@ -34,7 +34,7 @@ const GalleryModal = ({ open, onOpenChange, portfolio }: GalleryModalProps) => {
                   className="group cursor-pointer animate-scale-in"
                   style={{ animationDelay: `${idx * 0.05}s` }}
                 >
-                  <div className="aspect-square overflow-hidden rounded-xl sm:rounded-2xl bg-muted">
+                  <div className="aspect-[3/4] overflow-hidden rounded-xl sm:rounded-2xl bg-muted">
                     <img 
                       src={item.image}
                       alt={item.title}
