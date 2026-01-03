@@ -166,7 +166,7 @@ const AdminSlots = () => {
     return '';
   };
 
-  const quickAddTimes = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
+  const quickAddTimes = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
 
   const handleQuickAdd = async (time: string) => {
     if (!selectedDate) {
