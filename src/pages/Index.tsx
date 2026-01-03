@@ -5,7 +5,6 @@ import HeroSection from '@/components/sections/HeroSection';
 import PortfolioSection from '@/components/sections/PortfolioSection';
 import PriceSection from '@/components/sections/PriceSection';
 import BookingModal from '@/components/sections/BookingModal';
-import GalleryModal from '@/components/sections/GalleryModal';
 import Icon from '@/components/ui/icon';
 
 interface TimeSlot {
@@ -17,7 +16,6 @@ interface TimeSlot {
 
 const Index = () => {
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
-  const [galleryModalOpen, setGalleryModalOpen] = useState(false);
   const [slots, setSlots] = useState<TimeSlot[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
@@ -338,24 +336,13 @@ const Index = () => {
             <h1 className="text-xl md:text-2xl font-semibold tracking-tight">
               YOLO NAIILS
             </h1>
-            <div className="flex items-center gap-2 md:gap-3">
-              <Button 
-                onClick={() => setGalleryModalOpen(true)}
-                variant="ghost"
-                size="sm"
-                className="text-foreground/70 hover:bg-muted rounded-full px-3 md:px-4 h-9 md:h-10"
-              >
-                <Icon name="Image" size={20} className="md:mr-2" />
-                <span className="hidden md:inline">Работы</span>
-              </Button>
-              <Button 
-                onClick={() => setBookingModalOpen(true)}
-                size="sm"
-                className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-4 md:px-6 text-sm h-9 md:h-10 font-medium"
-              >
-                Записаться
-              </Button>
-            </div>
+            <Button 
+              onClick={() => setBookingModalOpen(true)}
+              size="sm"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-4 md:px-6 text-sm h-9 md:h-10 font-medium"
+            >
+              Записаться
+            </Button>
           </div>
         </div>
       </nav>
@@ -368,12 +355,6 @@ const Index = () => {
       <PortfolioSection portfolio={portfolio} />
 
       <PriceSection />
-
-      <GalleryModal
-        open={galleryModalOpen}
-        onOpenChange={setGalleryModalOpen}
-        portfolio={portfolio}
-      />
 
       <BookingModal
         open={bookingModalOpen}
