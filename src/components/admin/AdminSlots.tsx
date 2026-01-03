@@ -78,8 +78,6 @@ const AdminSlots = () => {
         })
       });
 
-      const responseData = await response.json();
-
       if (response.ok) {
         toast({
           title: 'Успешно',
@@ -89,9 +87,17 @@ const AdminSlots = () => {
         setIsAddDialogOpen(false);
         fetchSlots();
       } else {
+        const text = await response.text();
+        let errorMsg = 'Не удалось добавить слот';
+        try {
+          const data = JSON.parse(text);
+          errorMsg = data.error || errorMsg;
+        } catch (e) {
+          errorMsg = `Ошибка ${response.status}: ${response.statusText}`;
+        }
         toast({
           title: 'Ошибка',
-          description: responseData.error || 'Не удалось добавить слот',
+          description: errorMsg,
           variant: 'destructive'
         });
       }
@@ -191,8 +197,6 @@ const AdminSlots = () => {
         })
       });
 
-      const responseData = await response.json();
-
       if (response.ok) {
         toast({
           title: 'Успешно',
@@ -200,9 +204,17 @@ const AdminSlots = () => {
         });
         fetchSlots();
       } else {
+        const text = await response.text();
+        let errorMsg = 'Не удалось добавить слот';
+        try {
+          const data = JSON.parse(text);
+          errorMsg = data.error || errorMsg;
+        } catch (e) {
+          errorMsg = `Ошибка ${response.status}: ${response.statusText}`;
+        }
         toast({
           title: 'Ошибка',
-          description: responseData.error || 'Не удалось добавить слот',
+          description: errorMsg,
           variant: 'destructive'
         });
       }
