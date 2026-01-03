@@ -15,6 +15,7 @@ import {
   DialogTrigger,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { getApiUrl } from '@/config/api';
 
 interface TimeSlot {
   id: number;
@@ -36,7 +37,7 @@ const AdminSlots = () => {
 
   const fetchSlots = async () => {
     try {
-      const response = await fetch('/api/slots');
+      const response = await fetch(getApiUrl('slots'));
       const data = await response.json();
       setSlots(data);
     } catch (error) {
@@ -66,7 +67,7 @@ const AdminSlots = () => {
     try {
       const token = localStorage.getItem('admin_token');
       
-      const response = await fetch('/api/slots', {
+      const response = await fetch(getApiUrl('slots'), {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -114,7 +115,7 @@ const AdminSlots = () => {
   const handleDeleteSlot = async (slotId: number) => {
     try {
       const token = localStorage.getItem('admin_token');
-      const response = await fetch('/api/slots', {
+      const response = await fetch(getApiUrl('slots'), {
         method: 'DELETE',
         headers: { 
           'Content-Type': 'application/json',
@@ -185,7 +186,7 @@ const AdminSlots = () => {
     try {
       const token = localStorage.getItem('admin_token');
       
-      const response = await fetch('/api/slots', {
+      const response = await fetch(getApiUrl('slots'), {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

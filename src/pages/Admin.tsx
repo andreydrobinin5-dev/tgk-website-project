@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 import AdminSlots from '@/components/admin/AdminSlots';
 import AdminBookings from '@/components/admin/AdminBookings';
+import { getApiUrl } from '@/config/api';
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -46,7 +47,7 @@ const Admin = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(getApiUrl('auth'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password })
@@ -98,7 +99,7 @@ const Admin = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch('/api/cleanup', {
+      const response = await fetch(getApiUrl('cleanup'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });

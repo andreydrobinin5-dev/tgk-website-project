@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { getApiUrl } from '@/config/api';
 
 interface Booking {
   id: number;
@@ -39,7 +40,7 @@ const AdminBookings = () => {
   const fetchBookings = async () => {
     try {
       const token = localStorage.getItem('admin_token');
-      const response = await fetch('/api/bookings', {
+      const response = await fetch(getApiUrl('bookings'), {
         headers: {
           'X-Admin-Token': token || ''
         }
@@ -87,7 +88,7 @@ const AdminBookings = () => {
 
     try {
       const token = localStorage.getItem('admin_token');
-      const response = await fetch(`/api/bookings/${bookingId}`, {
+      const response = await fetch(`${getApiUrl('bookings')}?id=${bookingId}`, {
         method: 'DELETE',
         headers: {
           'X-Admin-Token': token || ''
