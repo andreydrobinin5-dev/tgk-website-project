@@ -45,11 +45,19 @@ const AdminBookings = () => {
           'X-Admin-Token': token || ''
         }
       });
+      
+      if (!response.ok) {
+        console.error('Bookings response not OK:', response.status);
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
       const data = await response.json();
+      console.log('Bookings data:', data);
       
       if (Array.isArray(data)) {
         setBookings(data);
       } else {
+        console.error('Invalid bookings data:', data);
         toast({
           title: 'Ошибка',
           description: data.error || 'Не удалось загрузить заявки',
@@ -57,6 +65,7 @@ const AdminBookings = () => {
         });
       }
     } catch (error) {
+      console.error('Fetch bookings error:', error);
       toast({
         title: 'Ошибка',
         description: 'Не удалось загрузить заявки',

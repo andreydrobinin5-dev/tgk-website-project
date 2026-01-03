@@ -38,9 +38,18 @@ const AdminSlots = () => {
   const fetchSlots = async () => {
     try {
       const response = await fetch(getApiUrl('slots'));
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
       const data = await response.json();
-      setSlots(data);
+      if (Array.isArray(data)) {
+        setSlots(data);
+      } else {
+        console.error('Invalid slots data:', data);
+        setSlots([]);
+      }
     } catch (error) {
+      console.error('Fetch slots error:', error);
       toast({
         title: 'Ошибка',
         description: 'Не удалось загрузить слоты',
