@@ -307,14 +307,40 @@ const BookingModal = ({
                   </div>
                   <div 
                     className="bg-background/50 p-5 rounded-2xl cursor-pointer hover:bg-background/70 transition-all active:scale-[0.98]"
-                    onClick={() => {
-                      navigator.clipboard.writeText('2204320434494284');
+                    onClick={async () => {
+                      const cardNumber = '2204320434494284';
                       const btn = document.getElementById('copy-card-btn');
-                      if (btn) {
-                        btn.textContent = '✓ Скопировано!';
-                        setTimeout(() => {
-                          btn.textContent = '📋 Нажмите для копирования';
-                        }, 2000);
+                      
+                      try {
+                        if (navigator.clipboard && window.isSecureContext) {
+                          await navigator.clipboard.writeText(cardNumber);
+                        } else {
+                          const textArea = document.createElement('textarea');
+                          textArea.value = cardNumber;
+                          textArea.style.position = 'fixed';
+                          textArea.style.left = '-999999px';
+                          textArea.style.top = '-999999px';
+                          document.body.appendChild(textArea);
+                          textArea.focus();
+                          textArea.select();
+                          document.execCommand('copy');
+                          textArea.remove();
+                        }
+                        
+                        if (btn) {
+                          btn.textContent = '✓ Скопировано!';
+                          setTimeout(() => {
+                            btn.textContent = '📋 Нажмите для копирования';
+                          }, 2000);
+                        }
+                      } catch (err) {
+                        console.error('Copy failed:', err);
+                        if (btn) {
+                          btn.textContent = '❌ Ошибка копирования';
+                          setTimeout(() => {
+                            btn.textContent = '📋 Нажмите для копирования';
+                          }, 2000);
+                        }
                       }
                     }}
                   >
