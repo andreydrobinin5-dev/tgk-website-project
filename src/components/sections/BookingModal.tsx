@@ -305,9 +305,24 @@ const BookingModal = ({
                     <span className="text-2xl">🏦</span>
                     <p className="text-lg font-semibold">Реквизиты для перевода</p>
                   </div>
-                  <div className="bg-background/50 p-5 rounded-2xl">
+                  <div 
+                    className="bg-background/50 p-5 rounded-2xl cursor-pointer hover:bg-background/70 transition-all active:scale-[0.98] group"
+                    onClick={() => {
+                      navigator.clipboard.writeText('2204320434494284');
+                      const btn = document.getElementById('copy-card-btn');
+                      if (btn) {
+                        btn.textContent = '✓ Скопировано!';
+                        setTimeout(() => {
+                          btn.textContent = '📋 Нажмите для копирования';
+                        }, 2000);
+                      }
+                    }}
+                  >
                     <p className="text-sm text-muted-foreground mb-2">Ozon Банк</p>
-                    <p className="text-xl font-mono font-bold tracking-wider">2204 3204 3449 4284</p>
+                    <p className="text-xl font-mono font-bold tracking-wider select-all">2204 3204 3449 4284</p>
+                    <p id="copy-card-btn" className="text-xs text-primary mt-2 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                      📋 Нажмите для копирования
+                    </p>
                   </div>
                   <p className="text-sm text-muted-foreground pt-2 flex items-center gap-2">
                     <span>👤</span> Получатель: Арина Ш.
